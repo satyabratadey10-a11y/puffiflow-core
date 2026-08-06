@@ -1,0 +1,25 @@
+{
+  "name": "puffiflow-core",
+  "private": true,
+  "version": "1.0.0",
+  "description": "PuffiFlow - Autonomous 4K Video Upscaling and Scheduled YouTube Publisher",
+  "scripts": {
+    "dev:web": "npm --prefix apps/web run dev",
+    "dev:api": "npm --prefix apps/api run dev",
+    "build:web": "npm --prefix apps/web run build",
+    "build:api": "npm --prefix apps/api run build",
+    "build": "npm run build:api && npm run build:web",
+    "start:api": "npm --prefix apps/api start",
+    "start:web": "npm --prefix apps/web start"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "devDependencies": {
+    "typescript": "^5.4.5"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

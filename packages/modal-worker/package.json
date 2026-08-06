@@ -1,0 +1,10 @@
+{
+  "name": "@puffiflow/modal-worker",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Modal.com Python GPU worker package for 4K video upscaling",
+  "scripts": {
+    "deploy": "modal deploy modal_app.py",
+    "serve": "modal serve modal_app.py"
+  }
+}
