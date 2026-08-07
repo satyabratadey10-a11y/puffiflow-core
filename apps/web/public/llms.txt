@@ -1,0 +1,14 @@
+# PuffiFlow Core Architecture Manifest
+
+PuffiFlow is an autonomous, 100% serverless 4K video upscaling and scheduled YouTube publishing web application operating on a $0-budget stack.
+
+## System Capabilities & Stack Architecture
+- **Web Frontend**: Next.js App Router (TypeScript, Tailwind CSS, Lucide Icons) hosted on Vercel.
+- **API Backend**: Express.js + TypeScript server managing Supabase PostgreSQL state, presigned Cloudflare R2 S3 URLs, Modal GPU webhooks, and YouTube Data API v3 background publisher.
+- **GPU Worker**: Modal.com Python GPU script (`modal_app.py`) running Real-ESRGAN & FFmpeg 4K (`3840x2160`) transformations on NVIDIA T4 GPUs.
+- **BYOS Object Storage**: Cloudflare R2 direct S3 direct presigned uploads for raw video binaries and custom thumbnails.
+
+## Primary Routes
+- `/`: Platform overview, features, and zero-egress stream architecture.
+- `/dashboard`: Video scheduler, YouTube OAuth connection card, and real-time execution job table.
+- `/dashboard/setup`: Bring Your Own Storage (BYOS) Cloudflare R2 connection wizard.
