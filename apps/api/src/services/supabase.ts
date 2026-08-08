@@ -35,7 +35,7 @@ export async function findOrCreateUser(email: string, googleId: string): Promise
 
   const { data: created, error: insertErr } = await client
     .from('users')
-    .insert([{ email, google_id: googleId, storage_setup_completed: false }])
+    .insert([{ email, google_id: googleId, storage_provider: 'supabase', storage_setup_completed: false }])
     .select()
     .single();
 
@@ -58,6 +58,22 @@ export async function saveUserRefreshToken(userId: string, encryptedRefreshToken
   }
 }
 
+export async function saveUserSupabaseStorage(userId: string): Promise<void> {
+  const client = getSupabaseClient();
+  const { error } = await client
+    .from('users')
+    .update({
+      storage_provider: 'supabase',
+      r2_bucket_name: 'puffiflow-videos',
+      storage_setup_completed: true,
+    })
+    .eq('id', userId);
+
+  if (error) {
+    throw new Error(`Failed to save Supabase Storage setup: ${error.message}`);
+  }
+}
+
 export async function saveUserStorageCredentials(
   userId: string,
   credentials: {
@@ -77,6 +93,7 @@ export async function saveUserStorageCredentials(
       r2_secret_access_key: credentials.encryptedSecretAccessKey,
       r2_bucket_name: credentials.bucketName,
       r2_public_domain: credentials.publicDomain,
+      storage_provider: 'cloudflare_r2',
       storage_setup_completed: true,
     })
     .eq('id', userId);

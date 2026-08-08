@@ -1,5 +1,7 @@
 export type JobStatus = 'QUEUED' | 'PROCESSING' | 'COMPLETED' | 'PUBLISHED' | 'FAILED';
 
+export type StorageProvider = 'supabase' | 'cloudflare_r2';
+
 export interface UserRecord {
   id: string;
   email: string;
@@ -10,6 +12,7 @@ export interface UserRecord {
   r2_secret_access_key: string | null;
   r2_bucket_name: string | null;
   r2_public_domain: string | null;
+  storage_provider: StorageProvider;
   storage_setup_completed: boolean;
   created_at: string;
 }

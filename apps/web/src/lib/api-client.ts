@@ -1,4 +1,4 @@
-import { JobRecord, VerifyStoragePayload } from '../types';
+import { JobRecord, VerifyStoragePayload, StorageProvider } from '../types';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
@@ -20,7 +20,7 @@ export async function getPresignedUploadUrl(
 
   if (!res.ok) {
     const errorData = await res.json().catch(() => ({}));
-    throw new Error(errorData.error || 'Failed to get presigned upload URL. Ensure your Cloudflare R2 storage is configured.');
+    throw new Error(errorData.error || 'Failed to get presigned upload URL. Ensure your storage is configured.');
   }
 
   return res.json();
@@ -49,14 +49,35 @@ export async function uploadFileToR2(uploadUrl: string, file: File, onProgress?:
       }
     };
 
-    xhr.onerror = () => reject(new Error('Network error during upload to Cloudflare R2'));
+    xhr.onerror = () => reject(new Error('Network error during upload'));
     xhr.send(file);
   });
+}
+
+export async function setupSupabaseStorage(userId: string): Promise<{
+  success: boolean;
+  message: string;
+  storageProvider: StorageProvider;
+  bucketName: string;
+}> {
+  const res = await fetch(`${API_BASE_URL}/api/storage/setup-supabase`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ userId }),
+  });
+
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    throw new Error(errorData.error || errorData.details || 'Failed to enable Supabase Storage');
+  }
+
+  return res.json();
 }
 
 export async function verifyStorageSetup(payload: VerifyStoragePayload): Promise<{
   success: boolean;
   message: string;
+  storageProvider: StorageProvider;
   bucketName: string;
   publicDomain: string;
 }> {
@@ -76,16 +97,18 @@ export async function verifyStorageSetup(payload: VerifyStoragePayload): Promise
 
 export async function getStorageStatus(userId: string): Promise<{
   storageSetupCompleted: boolean;
+  storageProvider: StorageProvider;
   bucketName: string | null;
   publicDomain: string | null;
 }> {
   const res = await fetch(`${API_BASE_URL}/api/storage/status?userId=${encodeURIComponent(userId)}`);
   if (!res.ok) {
-    return { storageSetupCompleted: false, bucketName: null, publicDomain: null };
+    return { storageSetupCompleted: false, storageProvider: 'supabase', bucketName: null, publicDomain: null };
   }
   const data = await res.json();
   return {
     storageSetupCompleted: !!data.storageSetupCompleted,
+    storageProvider: (data.storageProvider as StorageProvider) || 'supabase',
     bucketName: data.bucketName || null,
     publicDomain: data.publicDomain || null
   };

@@ -1,9 +1,9 @@
--- PuffiFlow Supabase PostgreSQL Database Schema (BYOS & Extended Metadata)
+-- PuffiFlow Supabase PostgreSQL Database Schema (BYOS & Dual-Storage Architecture)
 
 -- Enable UUID extension if not already enabled
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
--- 1. Users Table (BYOS Architecture)
+-- 1. Users Table (Dual-Storage Architecture: Supabase Storage & Cloudflare R2)
 CREATE TABLE IF NOT EXISTS public.users (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   email TEXT UNIQUE NOT NULL,
@@ -14,9 +14,13 @@ CREATE TABLE IF NOT EXISTS public.users (
   r2_secret_access_key TEXT, -- Encrypted AES-256 string
   r2_bucket_name TEXT,       -- Plaintext bucket name
   r2_public_domain TEXT,     -- Plaintext public R2 domain
+  storage_provider TEXT DEFAULT 'supabase', -- Options: 'supabase' | 'cloudflare_r2'
   storage_setup_completed BOOLEAN DEFAULT FALSE,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+-- Migration for existing environments
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS storage_provider TEXT DEFAULT 'supabase';
 
 -- 2. Jobs Table (Rich Video Metadata & Resolution Controls)
 CREATE TABLE IF NOT EXISTS public.jobs (

@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { generateR2PresignedUrl } from '../services/r2';
+import { generatePresignedUploadUrl } from '../services/r2';
 import { PresignUploadDto } from '../types';
 
 const router = Router();
@@ -12,7 +12,7 @@ router.post('/upload/presign', async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'userId, fileName, and contentType parameters are required.' });
     }
 
-    const presignedData = await generateR2PresignedUrl(
+    const presignedData = await generatePresignedUploadUrl(
       userId,
       fileName,
       contentType,
