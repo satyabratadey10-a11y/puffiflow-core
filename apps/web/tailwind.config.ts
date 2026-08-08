@@ -9,9 +9,12 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        background: "var(--background)",
-        foreground: "var(--foreground)",
-      },
+        puffi: {
+          50: '#f0f7ff',
+          500: '#3b82f6',
+          900: '#0f172a',
+        }
+      }
     },
   },
   plugins: [],

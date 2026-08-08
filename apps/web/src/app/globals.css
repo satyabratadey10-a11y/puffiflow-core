@@ -2,16 +2,24 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #090d16;
-  --foreground: #f3f4f6;
+@layer base {
+  :root {
+    --background: 9 13 22;
+    --foreground: 243 244 246;
+  }
+  
+  body {
+    color: rgb(var(--foreground));
+    background-color: rgb(var(--background));
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    min-height: 100vh;
+    margin: 0;
+  }
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-  min-height: 100vh;
-  margin: 0;
-  padding: 0;
+/* Custom dark UI utility styles */
+.glass-card {
+  background: rgba(17, 24, 39, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
