@@ -108,7 +108,7 @@ function StorageSetupForm() {
     } catch (err: any) {
       console.error('[R2 Storage Setup Error]:', err);
       setErrorMsg(err.message || 'Failed to verify Cloudflare R2 bucket connection.');
-    } flex {
+    } finally {
       setLoading(false);
     }
   };
