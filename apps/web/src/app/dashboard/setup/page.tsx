@@ -1,13 +1,17 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
-import { Cloud, ExternalLink, Key, Database, ShieldCheck, CheckCircle2, AlertCircle, Loader2, ArrowLeft, Info, Sparkles, CreditCard } from 'lucide-react';
+import { useSearchParams } from 'next/navigation';
+import { Cloud, ExternalLink, Key, Database, ShieldCheck, CheckCircle2, AlertCircle, Loader2, ArrowLeft, Sparkles } from 'lucide-react';
 import { verifyStorageSetup, setupSupabaseStorage, getStorageStatus } from '../../../lib/api-client';
 import { StorageProvider } from '../../../types';
 
-export default function StorageSetupPage() {
-  const [userId, setUserId] = useState<string>('usr_demo_1001');
+function StorageSetupForm() {
+  const searchParams = useSearchParams();
+  const qUserId = searchParams.get('userId');
+
+  const [userId, setUserId] = useState<string>(qUserId || 'usr_demo_1001');
   const [activeTab, setActiveTab] = useState<StorageProvider>('supabase');
 
   // Cloudflare R2 Inputs
@@ -26,12 +30,8 @@ export default function StorageSetupPage() {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const searchParams = new URLSearchParams(window.location.search);
-      const qUserId = searchParams.get('userId');
-      if (qUserId) setUserId(qUserId);
-    }
-  }, []);
+    if (qUserId) setUserId(qUserId);
+  }, [qUserId]);
 
   useEffect(() => {
     async function checkCurrentStatus() {
@@ -108,7 +108,7 @@ export default function StorageSetupPage() {
     } catch (err: any) {
       console.error('[R2 Storage Setup Error]:', err);
       setErrorMsg(err.message || 'Failed to verify Cloudflare R2 bucket connection.');
-    } finally {
+    } flex {
       setLoading(false);
     }
   };
@@ -415,5 +415,18 @@ export default function StorageSetupPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function StorageSetupPage() {
+  return (
+    <Suspense fallback={
+      <div className="max-w-5xl mx-auto px-6 py-20 text-center text-slate-400 flex items-center justify-center">
+        <Loader2 className="w-6 h-6 animate-spin text-violet-400 mr-2" />
+        <span>Loading storage configuration console...</span>
+      </div>
+    }>
+      <StorageSetupForm />
+    </Suspense>
   );
 }

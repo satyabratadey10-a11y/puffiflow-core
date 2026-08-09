@@ -1,12 +1,12 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
 import { KeyRound, ArrowRight, Loader2, RefreshCw } from 'lucide-react';
 import { createClient } from '../../lib/supabase/client';
 
-export default function VerifyEmailPage() {
+function VerifyEmailForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const supabase = createClient();
@@ -187,5 +187,18 @@ export default function VerifyEmailPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function VerifyEmailPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-[85vh] flex items-center justify-center text-slate-400">
+        <Loader2 className="w-6 h-6 animate-spin text-emerald-400 mr-2" />
+        <span>Loading verification form...</span>
+      </div>
+    }>
+      <VerifyEmailForm />
+    </Suspense>
   );
 }
