@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@next/swc-wasm-nodejs": "14.1.4",
@@ -27,6 +28,7 @@
     "zxcvbn": "^4.4.2"
   },
   "devDependencies": {
+    "@playwright/test": "^1.42.1",
     "@types/node": "^20.11.0",
     "@types/react": "^18.2.60",
     "@types/react-dom": "^18.2.19",
