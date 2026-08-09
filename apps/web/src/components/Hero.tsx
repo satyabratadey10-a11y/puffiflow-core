@@ -29,10 +29,10 @@ export default function Hero() {
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
           <Link
-            href="/dashboard"
+            href="/login"
             className="w-full sm:w-auto px-8 py-4 rounded-xl font-bold text-base text-white bg-gradient-to-r from-violet-600 via-indigo-600 to-cyan-600 hover:from-violet-500 hover:to-cyan-500 shadow-xl shadow-violet-600/30 hover:scale-105 transition-all duration-200 flex items-center justify-center space-x-3"
           >
-            <span>Launch Dashboard</span>
+            <span>Get Started</span>
             <ArrowRight className="w-5 h-5" />
           </Link>
           <a

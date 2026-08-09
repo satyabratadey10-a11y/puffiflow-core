@@ -1,0 +1,191 @@
+'use client';
+
+import React, { useState, useEffect, useRef } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { toast } from 'sonner';
+import { KeyRound, ArrowRight, Loader2, RefreshCw } from 'lucide-react';
+import { createClient } from '../../lib/supabase/client';
+
+export default function VerifyEmailPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const supabase = createClient();
+
+  const emailParam = searchParams.get('email') || '';
+  const [email, setEmail] = useState(emailParam);
+  const [otp, setOtp] = useState<string[]>(['', '', '', '', '', '']);
+  const [loading, setLoading] = useState(false);
+  const [resendCooldown, setResendCooldown] = useState(60);
+  const [resending, setResending] = useState(false);
+
+  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+  useEffect(() => {
+    if (emailParam) setEmail(emailParam);
+  }, [emailParam]);
+
+  // Cooldown countdown timer
+  useEffect(() => {
+    if (resendCooldown <= 0) return;
+    const timer = setInterval(() => {
+      setResendCooldown((prev) => prev - 1);
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [resendCooldown]);
+
+  const handleOtpChange = (index: number, value: string) => {
+    if (!/^\d*$/.test(value)) return;
+
+    const newOtp = [...otp];
+    newOtp[index] = value.substring(value.length - 1);
+    setOtp(newOtp);
+
+    // Auto-advance focus to next box
+    if (value && index < 5) {
+      inputRefs.current[index + 1]?.focus();
+    }
+  };
+
+  const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Backspace' && !otp[index] && index > 0) {
+      inputRefs.current[index - 1]?.focus();
+    }
+  };
+
+  const handlePaste = (e: React.ClipboardEvent) => {
+    e.preventDefault();
+    const pastedData = e.clipboardData.getData('text').trim();
+    if (/^\d{6}$/.test(pastedData)) {
+      const digits = pastedData.split('');
+      setOtp(digits);
+      inputRefs.current[5]?.focus();
+    }
+  };
+
+  const handleVerify = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const token = otp.join('');
+    if (token.length !== 6) {
+      toast.error('Please enter a valid 6-digit code.');
+      return;
+    }
+
+    if (!email) {
+      toast.error('Email address is required.');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.auth.verifyOtp({
+        email: email.trim(),
+        token,
+        type: 'signup',
+      });
+
+      if (error) {
+        toast.error(error.message || 'Invalid or expired verification code.');
+        return;
+      }
+
+      toast.success('Email verified successfully!');
+      router.push('/dashboard');
+      router.refresh();
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to verify code.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResendCode = async () => {
+    if (resendCooldown > 0 || resending || !email) return;
+
+    setResending(true);
+    try {
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email: email.trim(),
+      });
+
+      if (error) {
+        toast.error(error.message);
+      } else {
+        toast.success('A new verification code has been sent to your email.');
+        setResendCooldown(60);
+      }
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to resend code.');
+    } finally {
+      setResending(false);
+    }
+  };
+
+  return (
+    <div className="min-h-[85vh] flex items-center justify-center px-6 py-12">
+      <div className="w-full max-w-md p-8 rounded-3xl bg-slate-900/90 border border-slate-800 backdrop-blur-xl shadow-2xl space-y-6">
+        <div className="text-center space-y-2">
+          <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs font-semibold uppercase tracking-wider mb-2">
+            <KeyRound className="w-3.5 h-3.5" />
+            <span>Verify Email</span>
+          </div>
+          <h1 className="text-2xl md:text-3xl font-extrabold text-white">Enter 6-Digit Code</h1>
+          <p className="text-slate-400 text-xs md:text-sm">
+            We sent a verification code to <span className="text-white font-medium">{email || 'your email'}</span>
+          </p>
+        </div>
+
+        <form onSubmit={handleVerify} className="space-y-6">
+          {/* 6-Box OTP Input */}
+          <div className="flex justify-between gap-2" onPaste={handlePaste}>
+            {otp.map((digit, idx) => (
+              <input
+                key={idx}
+                ref={(el) => { inputRefs.current[idx] = el; }}
+                type="text"
+                inputMode="numeric"
+                maxLength={1}
+                autoComplete="one-time-code"
+                value={digit}
+                onChange={(e) => handleOtpChange(idx, e.target.value)}
+                onKeyDown={(e) => handleKeyDown(idx, e)}
+                className="w-12 h-14 text-center text-xl font-mono font-bold rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:border-emerald-500 transition-colors"
+              />
+            ))}
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading || otp.join('').length !== 6}
+            className="w-full py-3.5 px-4 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 hover:from-emerald-500 hover:to-cyan-500 shadow-lg shadow-emerald-600/25 transition-all flex items-center justify-center space-x-2 disabled:opacity-50"
+          >
+            {loading ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <>
+                <span>Verify & Launch Dashboard</span>
+                <ArrowRight className="w-4 h-4" />
+              </>
+            )}
+          </button>
+        </form>
+
+        <div className="text-center pt-2">
+          <button
+            type="button"
+            onClick={handleResendCode}
+            disabled={resendCooldown > 0 || resending}
+            className="inline-flex items-center space-x-2 text-xs font-semibold text-slate-400 hover:text-white transition-colors disabled:opacity-50"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${resending ? 'animate-spin' : ''}`} />
+            <span>
+              {resendCooldown > 0
+                ? `Resend code in ${resendCooldown}s`
+                : 'Resend code'}
+            </span>
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}

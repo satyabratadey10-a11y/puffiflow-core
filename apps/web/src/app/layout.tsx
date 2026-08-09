@@ -1,5 +1,6 @@
 import "./globals.css";
 import type { Metadata } from 'next';
+import { Toaster } from 'sonner';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 
@@ -42,6 +43,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark scroll-smooth">
       <body className="bg-[#090d16] text-gray-100 flex flex-col min-h-screen selection:bg-violet-500 selection:text-white">
+        <Toaster position="top-right" richColors theme="dark" />
         <Navbar />
         <main className="flex-grow">{children}</main>
         <Footer />
