@@ -9,7 +9,7 @@ dotenv.config();
 export const config = {
   port: process.env.PORT || 5000,
   nodeEnv: process.env.NODE_ENV || 'development',
-  apiSecretKey: process.env.API_SECRET_KEY || 'puffiflow_super_secret_internal_key_2026',
+  apiSecretKey: process.env.API_SECRET_KEY || 'puffiflow_secret_internal_key',
   
   supabaseUrl: process.env.SUPABASE_URL || '',
   supabaseServiceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY || '',
@@ -36,7 +36,7 @@ export function validateEnv(): void {
   if (!config.supabaseUrl) missing.push('SUPABASE_URL');
   if (!config.supabaseServiceRoleKey) missing.push('SUPABASE_SERVICE_ROLE_KEY');
 
-  if (missing.length > 0) {
-    console.warn(`[PuffiFlow Warning] Missing environment variables: ${missing.join(', ')}. Ensure .env is populated.`);
+  if (missing.length > 0 && config.nodeEnv === 'production') {
+    throw new Error(`[PuffiFlow Fatal] Missing required environment variables: ${missing.join(', ')}`);
   }
 }

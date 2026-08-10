@@ -1,6 +1,25 @@
+import { createClient } from './supabase/client';
 import { JobRecord, VerifyStoragePayload, StorageProvider, YoutubeStatusResponse } from '../types';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+
+async function getAuthHeaders(): Promise<Record<string, string>> {
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+  };
+
+  try {
+    const supabase = createClient();
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session?.access_token) {
+      headers['Authorization'] = `Bearer ${session.access_token}`;
+    }
+  } catch (err) {
+    // Graceful fallback for non-session states
+  }
+
+  return headers;
+}
 
 export async function getPresignedUploadUrl(
   userId: string,
@@ -12,9 +31,10 @@ export async function getPresignedUploadUrl(
   objectKey: string;
   publicUrl: string;
 }> {
+  const headers = await getAuthHeaders();
   const res = await fetch(`${API_BASE_URL}/api/upload/presign`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers,
     body: JSON.stringify({ userId, fileName, contentType, fileType }),
   });
 
@@ -60,15 +80,16 @@ export async function setupSupabaseStorage(userId: string): Promise<{
   storageProvider: StorageProvider;
   bucketName: string;
 }> {
+  const headers = await getAuthHeaders();
   const res = await fetch(`${API_BASE_URL}/api/storage/setup-supabase`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers,
     body: JSON.stringify({ userId }),
   });
 
   if (!res.ok) {
     const errorData = await res.json().catch(() => ({}));
-    throw new Error(errorData.error || errorData.details || 'Failed to enable Supabase Storage');
+    throw new Error(errorData.error || 'Failed to enable Supabase Storage');
   }
 
   return res.json();
@@ -81,15 +102,16 @@ export async function setupMultiCloudStorage(payload: VerifyStoragePayload): Pro
   bucketName: string;
   publicDomain?: string;
 }> {
+  const headers = await getAuthHeaders();
   const res = await fetch(`${API_BASE_URL}/api/storage/setup`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers,
     body: JSON.stringify(payload),
   });
 
   if (!res.ok) {
     const errorData = await res.json().catch(() => ({}));
-    throw new Error(errorData.error || errorData.details || 'Failed to save storage configuration');
+    throw new Error(errorData.error || 'Failed to save storage configuration');
   }
 
   return res.json();
@@ -111,7 +133,10 @@ export async function getStorageStatus(userId: string): Promise<{
   bucketName: string | null;
   publicDomain: string | null;
 }> {
-  const res = await fetch(`${API_BASE_URL}/api/storage/status?userId=${encodeURIComponent(userId)}`);
+  const headers = await getAuthHeaders();
+  const res = await fetch(`${API_BASE_URL}/api/storage/status?userId=${encodeURIComponent(userId)}`, {
+    headers,
+  });
   if (!res.ok) {
     return { storageSetupCompleted: false, storageProvider: 'supabase_default', bucketName: null, publicDomain: null };
   }
@@ -135,9 +160,10 @@ export async function createJob(payload: {
   rawVideoUrl: string;
   scheduledTime: string;
 }): Promise<JobRecord> {
+  const headers = await getAuthHeaders();
   const res = await fetch(`${API_BASE_URL}/api/jobs/create`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers,
     body: JSON.stringify(payload),
   });
 
@@ -151,9 +177,12 @@ export async function createJob(payload: {
 }
 
 export async function getUserJobs(userId: string): Promise<JobRecord[]> {
-  const res = await fetch(`${API_BASE_URL}/api/jobs?userId=${encodeURIComponent(userId)}`);
+  const headers = await getAuthHeaders();
+  const res = await fetch(`${API_BASE_URL}/api/jobs?userId=${encodeURIComponent(userId)}`, {
+    headers,
+  });
   if (!res.ok) {
-    throw new Error('Failed to fetch user jobs');
+    return [];
   }
   const data = await res.json();
   return data.jobs || [];
@@ -164,7 +193,10 @@ export async function getYoutubeAuthUrl(userId: string): Promise<string> {
 }
 
 export async function getYoutubeStatus(userId: string): Promise<YoutubeStatusResponse> {
-  const res = await fetch(`${API_BASE_URL}/api/youtube/status?userId=${encodeURIComponent(userId)}`);
+  const headers = await getAuthHeaders();
+  const res = await fetch(`${API_BASE_URL}/api/youtube/status?userId=${encodeURIComponent(userId)}`, {
+    headers,
+  });
   if (!res.ok) {
     return { connected: false };
   }

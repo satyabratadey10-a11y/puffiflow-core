@@ -1,21 +1,27 @@
-import { Router, Request, Response } from 'express';
+import { Router, Response } from 'express';
 import { generatePresignedUploadUrl } from '../services/r2';
 import { PresignUploadDto } from '../types';
+import { requireAuth, AuthenticatedRequest } from '../middleware/auth';
 
 const router = Router();
 
-router.post('/upload/presign', async (req: Request, res: Response) => {
+router.post('/upload/presign', requireAuth, async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const { userId, fileName, contentType, fileType }: PresignUploadDto = req.body;
+    const authenticatedUserId = req.user?.id;
+    const { fileName, contentType, fileType }: PresignUploadDto = req.body;
 
-    if (!userId || !fileName || !contentType) {
-      return res.status(400).json({ error: 'userId, fileName, and contentType parameters are required.' });
+    if (!authenticatedUserId) {
+      return res.status(401).json({ error: 'Unauthorized user session.' });
+    }
+
+    if (!fileName || !contentType) {
+      return res.status(400).json({ error: 'fileName and contentType parameters are required.' });
     }
 
     const presignedData = await generatePresignedUploadUrl(
-      userId,
-      fileName,
-      contentType,
+      authenticatedUserId,
+      fileName.trim(),
+      contentType.trim(),
       fileType || 'video'
     );
 
@@ -26,8 +32,8 @@ router.post('/upload/presign', async (req: Request, res: Response) => {
       publicUrl: presignedData.publicUrl
     });
   } catch (error: any) {
-    console.error('[Upload Presign Error]:', error);
-    return res.status(500).json({ error: 'Failed to generate presigned upload URL', details: error.message });
+    console.error('[Upload Presign Error]:', error.message || error);
+    return res.status(500).json({ error: 'Failed to generate presigned upload URL' });
   }
 });
 

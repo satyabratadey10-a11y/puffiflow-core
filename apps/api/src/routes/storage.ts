@@ -1,36 +1,21 @@
-import { Router, Request, Response } from 'express';
+import { Router, Response } from 'express';
 import { verifyR2Credentials, verifyS3Credentials } from '../services/r2';
 import { encryptToken } from '../services/crypto';
-import { saveUserStorageCredentials, saveUserSupabaseStorage, saveUserMultiCloudStorage, getUserById, getSupabaseClient } from '../services/supabase';
+import { saveUserSupabaseStorage, saveUserMultiCloudStorage, getUserById, getSupabaseClient } from '../services/supabase';
 import { VerifyStorageDto } from '../types';
+import { requireAuth, AuthenticatedRequest } from '../middleware/auth';
 
 const router = Router();
 
 // Handler function for setup-supabase (Free Default)
-async function handleSetupSupabase(req: Request, res: Response) {
+async function handleSetupSupabase(req: AuthenticatedRequest, res: Response) {
   try {
+    const authenticatedUserId = req.user?.id || req.body?.userId;
+    if (!authenticatedUserId) {
+      return res.status(401).json({ error: 'Unauthorized: Missing valid session token or userId.' });
+    }
+
     const supabaseAdmin = getSupabaseClient();
-    let targetUserId: string | null = req.body?.userId || null;
-    let userEmail: string | null = req.body?.email || null;
-
-    // Check optional Bearer authorization header
-    const authHeader = req.headers.authorization;
-    if (authHeader && authHeader.startsWith('Bearer ')) {
-      const token = authHeader.replace('Bearer ', '').trim();
-      if (token) {
-        const { data: { user } } = await supabaseAdmin.auth.getUser(token);
-        if (user) {
-          targetUserId = user.id;
-          userEmail = user.email || userEmail;
-        }
-      }
-    }
-
-    if (!targetUserId) {
-      return res.status(400).json({ error: 'Missing userId parameter or valid Bearer authorization token.' });
-    }
-
-    // Verify or auto-create public bucket 'puffiflow-videos'
     try {
       const { data: buckets } = await supabaseAdmin.storage.listBuckets();
       const hasBucket = buckets?.some((b) => b.name === 'puffiflow-videos');
@@ -41,9 +26,7 @@ async function handleSetupSupabase(req: Request, res: Response) {
       console.warn('[Storage Setup] Bucket listing/creation warning:', bucketErr.message || bucketErr);
     }
 
-    await saveUserSupabaseStorage(targetUserId);
-
-    console.log(`[Storage Setup] Successfully enabled Supabase Default Storage for user ${targetUserId}`);
+    await saveUserSupabaseStorage(authenticatedUserId);
 
     return res.status(200).json({
       success: true,
@@ -54,19 +37,19 @@ async function handleSetupSupabase(req: Request, res: Response) {
       bucketName: 'puffiflow-videos'
     });
   } catch (err: any) {
-    console.error('[Storage Setup Error]:', err);
-    return res.status(500).json({ error: err.message || 'Internal server error' });
+    console.error('[Storage Setup Error]:', err.message || err);
+    return res.status(500).json({ error: 'Internal server error during storage setup' });
   }
 }
 
-router.post('/storage/setup-supabase', handleSetupSupabase);
-router.post('/setup-supabase', handleSetupSupabase);
+router.post('/storage/setup-supabase', requireAuth, handleSetupSupabase);
+router.post('/setup-supabase', requireAuth, handleSetupSupabase);
 
-// Unified Multi-Cloud Storage Setup & Verification Endpoint
-router.post('/storage/setup', async (req: Request, res: Response) => {
+// Unified Multi-Cloud Storage Setup & Verification Endpoint (Protected & IDOR-safe)
+router.post('/storage/setup', requireAuth, async (req: AuthenticatedRequest, res: Response) => {
   try {
+    const authenticatedUserId = req.user?.id;
     const {
-      userId,
       provider,
       accountId,
       accessKeyId,
@@ -79,15 +62,19 @@ router.post('/storage/setup', async (req: Request, res: Response) => {
       supabaseServiceRoleKey,
     }: VerifyStorageDto = req.body;
 
-    if (!userId || !provider) {
-      return res.status(400).json({ error: 'Missing userId or provider parameter.' });
+    if (!authenticatedUserId) {
+      return res.status(401).json({ error: 'Unauthorized user session.' });
+    }
+
+    if (!provider) {
+      return res.status(400).json({ error: 'Missing provider parameter.' });
     }
 
     const bName = bucketName?.trim() || 'puffiflow-videos';
 
     // 1. Supabase Default
     if (provider === 'supabase_default' || provider === 'supabase') {
-      await saveUserSupabaseStorage(userId);
+      await saveUserSupabaseStorage(authenticatedUserId);
       return res.status(200).json({
         success: true,
         message: 'Supabase Default Storage enabled successfully!',
@@ -104,7 +91,7 @@ router.post('/storage/setup', async (req: Request, res: Response) => {
         return res.status(400).json({ error: 'Missing custom Supabase URL or Service Role Key.' });
       }
 
-      await saveUserMultiCloudStorage(userId, {
+      await saveUserMultiCloudStorage(authenticatedUserId, {
         provider: 'supabase_custom',
         supabaseUrl: supabaseUrl.trim(),
         encryptedSupabaseRoleKey: encryptToken(supabaseServiceRoleKey.trim()),
@@ -133,7 +120,7 @@ router.post('/storage/setup', async (req: Request, res: Response) => {
         ? (publicDomain.startsWith('http') ? publicDomain.trim() : `https://${publicDomain.trim()}`)
         : `https://${bName}.${accountId.trim()}.r2.cloudflarestorage.com`;
 
-      await saveUserMultiCloudStorage(userId, {
+      await saveUserMultiCloudStorage(authenticatedUserId, {
         provider: 'cloudflare_r2',
         encryptedAccountId: encryptToken(accountId.trim()),
         encryptedAccessKey: encryptToken(accessKeyId.trim()),
@@ -169,14 +156,13 @@ router.post('/storage/setup', async (req: Request, res: Response) => {
       defaultRegion = s3Region?.trim() || 'us-east-1';
     }
 
-    console.log(`[Storage Verification] Testing S3 provider (${provider}) for user ${userId}, bucket ${bName}...`);
     await verifyS3Credentials(defaultEndpoint, defaultRegion, accessKeyId.trim(), secretAccessKey.trim(), bName);
 
     const formattedPublicDomain = publicDomain && publicDomain.trim() !== ''
       ? (publicDomain.startsWith('http') ? publicDomain.trim() : `https://${publicDomain.trim()}`)
       : (defaultEndpoint ? `${defaultEndpoint.replace(/\/$/, '')}/${bName}` : `https://${bName}.s3.${defaultRegion}.amazonaws.com`);
 
-    await saveUserMultiCloudStorage(userId, {
+    await saveUserMultiCloudStorage(authenticatedUserId, {
       provider,
       s3Endpoint: defaultEndpoint || null,
       s3Region: defaultRegion,
@@ -196,29 +182,28 @@ router.post('/storage/setup', async (req: Request, res: Response) => {
       publicDomain: formattedPublicDomain,
     });
   } catch (error: any) {
-    console.error('[Storage Setup Error]:', error);
+    console.error('[Storage Setup Error]:', error.message || error);
     return res.status(400).json({
-      error: 'Failed to save or verify storage configuration',
-      details: error.message,
+      error: 'Failed to save or verify storage configuration'
     });
   }
 });
 
 // Legacy R2 verification route for backward compatibility
-router.post('/storage/verify', async (req: Request, res: Response) => {
+router.post('/storage/verify', requireAuth, async (req: AuthenticatedRequest, res: Response) => {
   req.body.provider = 'cloudflare_r2';
   return router.handle(req, res, () => {});
 });
 
-// Check user storage setup status
-router.get('/storage/status', async (req: Request, res: Response) => {
+// Check user storage setup status (Protected & IDOR-safe)
+router.get('/storage/status', requireAuth, async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const userId = req.query.userId as string;
-    if (!userId) {
-      return res.status(400).json({ error: 'userId query parameter is required.' });
+    const authenticatedUserId = req.user?.id;
+    if (!authenticatedUserId) {
+      return res.status(401).json({ error: 'Unauthorized user session.' });
     }
 
-    const user = await getUserById(userId);
+    const user = await getUserById(authenticatedUserId);
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
@@ -235,8 +220,8 @@ router.get('/storage/status', async (req: Request, res: Response) => {
       publicDomain,
     });
   } catch (error: any) {
-    console.error('[Storage Status Error]:', error);
-    return res.status(500).json({ error: 'Failed to fetch storage status', details: error.message });
+    console.error('[Storage Status Error]:', error.message || error);
+    return res.status(500).json({ error: 'Failed to fetch storage status' });
   }
 });
 

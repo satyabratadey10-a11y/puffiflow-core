@@ -1,16 +1,17 @@
-import { Router, Request, Response } from 'express';
+import { Router, Response } from 'express';
 import { createJobRecord, updateJobStatus, getAllJobsForUser } from '../services/supabase';
 import { triggerModalGpuWorker } from '../services/modal';
 import { CreateJobDto, ModalWebhookPayload } from '../types';
 import { config } from '../config/env';
+import { requireAuth, AuthenticatedRequest } from '../middleware/auth';
 
 const router = Router();
 
-// 1. Create new upscaling and scheduled publish job
-router.post('/jobs/create', async (req: Request, res: Response) => {
+// 1. Create new upscaling and scheduled publish job (Protected)
+router.post('/jobs/create', requireAuth, async (req: AuthenticatedRequest, res: Response) => {
   try {
+    const authenticatedUserId = req.user?.id;
     const {
-      userId,
       title,
       description,
       thumbnailUrl,
@@ -21,17 +22,21 @@ router.post('/jobs/create', async (req: Request, res: Response) => {
       scheduledTime
     }: CreateJobDto = req.body;
 
-    if (!userId || !title || !rawVideoUrl || !scheduledTime) {
-      return res.status(400).json({ error: 'userId, title, rawVideoUrl, and scheduledTime are required fields.' });
+    if (!authenticatedUserId) {
+      return res.status(401).json({ error: 'Unauthorized: User session missing.' });
     }
 
-    // Save job into Supabase database with initial QUEUED status
+    if (!title || !rawVideoUrl || !scheduledTime) {
+      return res.status(400).json({ error: 'title, rawVideoUrl, and scheduledTime are required fields.' });
+    }
+
+    // Save job into Supabase database with initial QUEUED status bound to authenticated user
     const job = await createJobRecord({
-      userId,
-      title,
-      description: description || '',
+      userId: authenticatedUserId,
+      title: title.trim(),
+      description: description ? description.trim() : '',
       thumbnailUrl,
-      relatedVideoId,
+      relatedVideoId: relatedVideoId ? relatedVideoId.trim() : undefined,
       aiEnhancerEnabled: aiEnhancerEnabled ?? true,
       targetResolution: targetResolution || '4K',
       rawVideoUrl,
@@ -52,15 +57,14 @@ router.post('/jobs/create', async (req: Request, res: Response) => {
       job
     });
   } catch (error: any) {
-    console.error('[Create Job Error]:', error);
-    return res.status(500).json({ error: 'Failed to create job', details: error.message });
+    console.error('[Create Job Error]:', error.message || error);
+    return res.status(500).json({ error: 'Failed to create job' });
   }
 });
 
-// 2. Webhook completion handler called by Modal worker
-router.post('/jobs/webhook', async (req: Request, res: Response) => {
+// 2. Webhook completion handler called by Modal worker (Secured by Secret Header)
+router.post('/jobs/webhook', async (req: AuthenticatedRequest, res: Response) => {
   try {
-    // Validate secret header to protect webhook integrity
     const secretHeader = req.headers['x-api-secret'];
     if (secretHeader !== config.apiSecretKey) {
       return res.status(401).json({ error: 'Unauthorized webhook request.' });
@@ -74,32 +78,32 @@ router.post('/jobs/webhook', async (req: Request, res: Response) => {
 
     if (status === 'COMPLETED') {
       await updateJobStatus(jobId, 'COMPLETED', processed4kUrl);
-      console.log(`[Job Webhook] Job ${jobId} successfully marked COMPLETED. 4K URL: ${processed4kUrl}`);
+      console.log(`[Job Webhook] Job ${jobId} successfully marked COMPLETED.`);
     } else {
       await updateJobStatus(jobId, 'FAILED');
-      console.warn(`[Job Webhook] Job ${jobId} marked FAILED. Error: ${error}`);
+      console.warn(`[Job Webhook] Job ${jobId} marked FAILED.`);
     }
 
     return res.status(200).json({ success: true, jobId, status });
   } catch (error: any) {
-    console.error('[Job Webhook Error]:', error);
-    return res.status(500).json({ error: 'Failed to process job webhook', details: error.message });
+    console.error('[Job Webhook Error]:', error.message || error);
+    return res.status(500).json({ error: 'Failed to process job webhook' });
   }
 });
 
-// 3. Get list of all jobs for a specific user
-router.get('/jobs', async (req: Request, res: Response) => {
+// 3. Get list of all jobs for authenticated user (Protected & IDOR-safe)
+router.get('/jobs', requireAuth, async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const userId = req.query.userId as string;
-    if (!userId) {
-      return res.status(400).json({ error: 'userId query parameter is required.' });
+    const authenticatedUserId = req.user?.id;
+    if (!authenticatedUserId) {
+      return res.status(401).json({ error: 'Unauthorized user session.' });
     }
 
-    const jobs = await getAllJobsForUser(userId);
+    const jobs = await getAllJobsForUser(authenticatedUserId);
     return res.status(200).json({ success: true, jobs });
   } catch (error: any) {
-    console.error('[Get Jobs Error]:', error);
-    return res.status(500).json({ error: 'Failed to fetch jobs', details: error.message });
+    console.error('[Get Jobs Error]:', error.message || error);
+    return res.status(500).json({ error: 'Failed to fetch jobs' });
   }
 });
 
