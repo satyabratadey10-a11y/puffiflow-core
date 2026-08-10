@@ -3,28 +3,94 @@
 import React, { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { Cloud, ExternalLink, Key, Database, ShieldCheck, CheckCircle2, AlertCircle, Loader2, ArrowLeft, Sparkles } from 'lucide-react';
-import { verifyStorageSetup, setupSupabaseStorage, getStorageStatus } from '../../../lib/api-client';
+import {
+  Cloud,
+  ExternalLink,
+  Key,
+  Database,
+  ShieldCheck,
+  CheckCircle2,
+  AlertCircle,
+  Loader2,
+  ArrowLeft,
+  Sparkles,
+  Server,
+  Layers,
+  HardDrive,
+  Globe,
+} from 'lucide-react';
+import { setupMultiCloudStorage, getStorageStatus } from '../../../lib/api-client';
 import { StorageProvider } from '../../../types';
 
-function StorageSetupForm() {
+const PROVIDER_OPTIONS: { id: StorageProvider; name: string; badge: string; desc: string; icon: any }[] = [
+  {
+    id: 'supabase_default',
+    name: 'Supabase Free Default',
+    badge: '1 GB Included ($0/mo)',
+    desc: 'Default serverless storage included in your Supabase backend.',
+    icon: Sparkles,
+  },
+  {
+    id: 'supabase_custom',
+    name: 'Custom Supabase (BYOS)',
+    badge: 'Own Project URL',
+    desc: 'Bring your own dedicated Supabase project URL and Service Role Key.',
+    icon: Database,
+  },
+  {
+    id: 'cloudflare_r2',
+    name: 'Cloudflare R2',
+    badge: 'Zero Egress Fees',
+    desc: 'S3-compatible object storage with $0 egress bandwidth cost.',
+    icon: Cloud,
+  },
+  {
+    id: 'aws_s3',
+    name: 'Amazon Web Services S3',
+    badge: 'Enterprise Standard',
+    desc: 'AWS Simple Storage Service with global edge regions.',
+    icon: Server,
+  },
+  {
+    id: 'backblaze_b2',
+    name: 'Backblaze B2 Storage',
+    badge: 'Cost-Effective S3',
+    desc: 'High-performance cloud storage at 1/5th the cost of traditional S3.',
+    icon: HardDrive,
+  },
+  {
+    id: 'wasabi',
+    name: 'Wasabi Hot Cloud Storage',
+    badge: 'No Egress / API Charges',
+    desc: 'Ultra-fast S3-compliant object storage with flat pricing.',
+    icon: Layers,
+  },
+];
+
+function MultiCloudStorageSetupForm() {
   const searchParams = useSearchParams();
   const qUserId = searchParams.get('userId');
 
   const [userId, setUserId] = useState<string>(qUserId || 'usr_demo_1001');
-  const [activeTab, setActiveTab] = useState<StorageProvider>('supabase');
+  const [selectedProvider, setSelectedProvider] = useState<StorageProvider>('supabase_default');
 
-  // Cloudflare R2 Inputs
+  // Input states
   const [accountId, setAccountId] = useState('');
   const [accessKeyId, setAccessKeyId] = useState('');
   const [secretAccessKey, setSecretAccessKey] = useState('');
-  const [bucketName, setBucketName] = useState('');
+  const [bucketName, setBucketName] = useState('puffiflow-videos');
   const [publicDomain, setPublicDomain] = useState('');
+
+  const [s3Endpoint, setS3Endpoint] = useState('');
+  const [s3Region, setS3Region] = useState('us-east-1');
+
+  const [supabaseUrl, setSupabaseUrl] = useState('');
+  const [supabaseServiceRoleKey, setSupabaseServiceRoleKey] = useState('');
 
   const [loading, setLoading] = useState(false);
   const [statusLoading, setStatusLoading] = useState(true);
   const [setupCompleted, setSetupCompleted] = useState(false);
-  const [activeProvider, setActiveProvider] = useState<StorageProvider>('supabase');
+  const [activeProvider, setActiveProvider] = useState<StorageProvider>('supabase_default');
   const [activeBucket, setActiveBucket] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -41,17 +107,12 @@ function StorageSetupForm() {
         if (st.storageSetupCompleted) {
           setSetupCompleted(true);
           setActiveProvider(st.storageProvider);
-          setActiveTab(st.storageProvider);
-          if (st.bucketName) {
-            setActiveBucket(st.bucketName);
-            if (st.storageProvider === 'cloudflare_r2') {
-              setBucketName(st.bucketName);
-            }
-          }
+          setSelectedProvider(st.storageProvider);
+          if (st.bucketName) setActiveBucket(st.bucketName);
           if (st.publicDomain) setPublicDomain(st.publicDomain);
         }
       } catch (err) {
-        console.error('Failed to check storage status:', err);
+        console.error('Failed to fetch storage status:', err);
       } finally {
         setStatusLoading(false);
       }
@@ -59,55 +120,34 @@ function StorageSetupForm() {
     checkCurrentStatus();
   }, [userId]);
 
-  // Tab 1 Handler: Enable Supabase Storage
-  const handleEnableSupabaseStorage = async () => {
-    setLoading(true);
-    setErrorMsg(null);
-    setSuccessMsg(null);
-
-    try {
-      const res = await setupSupabaseStorage(userId);
-      setSuccessMsg(res.message || 'Supabase Storage enabled successfully!');
-      setSetupCompleted(true);
-      setActiveProvider('supabase');
-      setActiveBucket('puffiflow-videos');
-    } catch (err: any) {
-      console.error('[Supabase Setup Error]:', err);
-      setErrorMsg(err.message || 'Failed to enable Supabase Storage.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Tab 2 Handler: Test & Save Cloudflare R2 Connection
-  const handleTestAndSaveR2 = async (e: React.FormEvent) => {
+  const handleSaveStorage = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!accountId || !accessKeyId || !secretAccessKey || !bucketName) {
-      setErrorMsg('Account ID, Access Key ID, Secret Access Key, and Bucket Name are required.');
-      return;
-    }
-
     setLoading(true);
     setErrorMsg(null);
     setSuccessMsg(null);
 
     try {
-      const res = await verifyStorageSetup({
+      const res = await setupMultiCloudStorage({
         userId,
+        provider: selectedProvider,
         accountId: accountId.trim(),
         accessKeyId: accessKeyId.trim(),
         secretAccessKey: secretAccessKey.trim(),
-        bucketName: bucketName.trim(),
+        bucketName: bucketName.trim() || 'puffiflow-videos',
         publicDomain: publicDomain.trim(),
+        s3Endpoint: s3Endpoint.trim(),
+        s3Region: s3Region.trim(),
+        supabaseUrl: supabaseUrl.trim(),
+        supabaseServiceRoleKey: supabaseServiceRoleKey.trim(),
       });
 
-      setSuccessMsg(res.message || 'Cloudflare R2 storage connection verified and saved!');
+      setSuccessMsg(res.message || 'Storage provider configured successfully!');
       setSetupCompleted(true);
-      setActiveProvider('cloudflare_r2');
-      setActiveBucket(bucketName.trim());
+      setActiveProvider(res.storageProvider || selectedProvider);
+      setActiveBucket(res.bucketName || bucketName.trim());
     } catch (err: any) {
-      console.error('[R2 Storage Setup Error]:', err);
-      setErrorMsg(err.message || 'Failed to verify Cloudflare R2 bucket connection.');
+      console.error('[Multi-Cloud Setup Error]:', err);
+      setErrorMsg(err.message || 'Failed to verify or save storage configuration.');
     } finally {
       setLoading(false);
     }
@@ -115,7 +155,7 @@ function StorageSetupForm() {
 
   return (
     <div className="max-w-5xl mx-auto px-6 py-10 space-y-8">
-      {/* Top Breadcrumb & Actions */}
+      {/* Top Navigation */}
       <div className="flex items-center justify-between">
         <Link
           href={`/dashboard?userId=${userId}`}
@@ -131,21 +171,21 @@ function StorageSetupForm() {
           rel="noopener noreferrer"
           className="inline-flex items-center space-x-2 px-4 py-2 rounded-xl bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 border border-emerald-500/30 text-xs font-semibold transition-all"
         >
-          <span>Open Supabase Portal</span>
+          <span>Supabase Portal</span>
           <ExternalLink className="w-3.5 h-3.5" />
         </a>
       </div>
 
-      {/* Main Container Header */}
+      {/* Main Header Banner */}
       <div className="p-8 rounded-3xl bg-slate-900/90 border border-slate-800 backdrop-blur-xl shadow-2xl relative overflow-hidden">
         <div className="flex items-start space-x-4">
           <div className="p-3 rounded-2xl bg-violet-500/10 text-violet-400 border border-violet-500/20">
-            <Database className="w-8 h-8" />
+            <Globe className="w-8 h-8" />
           </div>
           <div>
-            <h1 className="text-2xl md:text-3xl font-extrabold text-white">Dual Storage Architecture</h1>
+            <h1 className="text-2xl md:text-3xl font-extrabold text-white">Universal BYOS Multi-Cloud Architecture</h1>
             <p className="text-slate-400 text-sm mt-1">
-              Choose between <strong>Supabase Storage</strong> ($0 budget, no credit card needed) or <strong>Cloudflare R2</strong> (zero egress fees for high volume).
+              Select your preferred object storage provider: <strong>Supabase (Default/Custom)</strong>, <strong>Cloudflare R2</strong>, <strong>AWS S3</strong>, <strong>Backblaze B2</strong>, or <strong>Wasabi</strong>.
             </p>
           </div>
         </div>
@@ -155,278 +195,345 @@ function StorageSetupForm() {
             <div className="flex items-center space-x-2">
               <CheckCircle2 className="w-5 h-5 flex-shrink-0" />
               <span className="font-semibold">
-                Active Provider: {activeProvider === 'supabase' ? 'Supabase Storage' : 'Cloudflare R2'} (Bucket: {activeBucket || 'puffiflow-videos'})
+                Active Provider: {PROVIDER_OPTIONS.find((p) => p.id === activeProvider)?.name || activeProvider} (Bucket: {activeBucket || 'puffiflow-videos'})
               </span>
             </div>
             <Link
               href={`/dashboard?userId=${userId}`}
-              className="px-3 py-1.5 rounded-lg bg-emerald-500 text-slate-950 text-xs font-bold hover:bg-emerald-400 transition-colors"
+              className="px-3.5 py-1.5 rounded-lg bg-emerald-500 text-slate-950 text-xs font-bold hover:bg-emerald-400 transition-colors"
             >
-              Go to Video Dashboard
+              Go to Dashboard
             </Link>
           </div>
         )}
       </div>
 
-      {/* Tabbed Storage Selector */}
-      <div className="flex rounded-2xl bg-slate-900/80 p-1.5 border border-slate-800 backdrop-blur-md max-w-2xl mx-auto">
-        <button
-          type="button"
-          onClick={() => setActiveTab('supabase')}
-          className={`flex-1 py-3 px-4 rounded-xl text-sm font-bold transition-all flex items-center justify-center space-x-2 ${
-            activeTab === 'supabase'
-              ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-lg shadow-emerald-600/20'
-              : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
-          }`}
-        >
-          <Sparkles className="w-4 h-4 text-emerald-300" />
-          <span>Supabase Storage (No CC Needed)</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setActiveTab('cloudflare_r2')}
-          className={`flex-1 py-3 px-4 rounded-xl text-sm font-bold transition-all flex items-center justify-center space-x-2 ${
-            activeTab === 'cloudflare_r2'
-              ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-lg shadow-cyan-600/20'
-              : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
-          }`}
-        >
-          <Cloud className="w-4 h-4 text-cyan-300" />
-          <span>Cloudflare R2 / S3 (CC Required)</span>
-        </button>
+      {/* Multi-Cloud Provider Cards Selector */}
+      <div className="space-y-4">
+        <label className="block text-sm font-semibold text-slate-200">Select Object Storage Provider</label>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {PROVIDER_OPTIONS.map((prov) => {
+            const IconComponent = prov.icon;
+            const isSelected = selectedProvider === prov.id;
+            return (
+              <button
+                key={prov.id}
+                type="button"
+                onClick={() => {
+                  setSelectedProvider(prov.id);
+                  setErrorMsg(null);
+                  setSuccessMsg(null);
+                }}
+                className={`p-5 rounded-2xl text-left transition-all border flex flex-col justify-between space-y-3 ${
+                  isSelected
+                    ? 'bg-slate-800/90 border-violet-500 shadow-xl shadow-violet-500/10 ring-2 ring-violet-500/50'
+                    : 'bg-slate-900/60 border-slate-800 hover:bg-slate-800/50 hover:border-slate-700'
+                }`}
+              >
+                <div className="flex items-center justify-between w-full">
+                  <div className={`p-2 rounded-xl ${isSelected ? 'bg-violet-500/20 text-violet-300' : 'bg-slate-800 text-slate-400'}`}>
+                    <IconComponent className="w-5 h-5" />
+                  </div>
+                  <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-slate-950 border border-slate-800 text-slate-300">
+                    {prov.badge}
+                  </span>
+                </div>
+                <div>
+                  <h3 className="font-bold text-sm text-white">{prov.name}</h3>
+                  <p className="text-slate-400 text-xs mt-1 leading-relaxed">{prov.desc}</p>
+                </div>
+              </button>
+            );
+          })}
+        </div>
       </div>
 
-      {/* TAB 1: SUPABASE STORAGE */}
-      {activeTab === 'supabase' && (
-        <div className="space-y-6">
-          {/* Step-by-Step Supabase Guide */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="p-6 rounded-2xl bg-slate-900/60 border border-slate-800">
-              <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-400 mb-3 inline-block">Step 1</span>
-              <h3 className="text-white font-bold text-base mb-2">Log into Supabase Dashboard</h3>
-              <p className="text-slate-400 text-xs leading-relaxed">
-                Open your <a href="https://supabase.com/dashboard" target="_blank" rel="noopener noreferrer" className="text-emerald-400 underline">Supabase Dashboard</a> and navigate to the <strong>Storage</strong> tab in the sidebar.
+      {/* Configuration Form Box */}
+      <div className="p-8 rounded-3xl bg-slate-900/90 border border-slate-800 backdrop-blur-xl shadow-xl space-y-6">
+        <h2 className="text-xl font-bold text-white flex items-center space-x-2">
+          <Key className="w-5 h-5 text-violet-400" />
+          <span>Configure {PROVIDER_OPTIONS.find((p) => p.id === selectedProvider)?.name}</span>
+        </h2>
+
+        {/* Dynamic Provider Form Inputs */}
+        <form onSubmit={handleSaveStorage} className="space-y-6">
+          {/* PROVIDER: SUPABASE DEFAULT */}
+          {selectedProvider === 'supabase_default' && (
+            <div className="p-6 rounded-2xl bg-slate-950/60 border border-slate-800 space-y-3">
+              <p className="text-slate-300 text-sm leading-relaxed">
+                Uses your main Supabase backend project storage bucket (<code>puffiflow-videos</code>). No additional API keys or credit card required.
               </p>
-            </div>
-
-            <div className="p-6 rounded-2xl bg-slate-900/60 border border-slate-800">
-              <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-400 mb-3 inline-block">Step 2</span>
-              <h3 className="text-white font-bold text-base mb-2">Create Public Bucket</h3>
-              <p className="text-slate-400 text-xs leading-relaxed">
-                Click <em>New Bucket</em>, enter bucket name <code>puffiflow-videos</code>, and toggle <strong>Public bucket</strong> to ON so YouTube API can access upscaled videos.
-              </p>
-            </div>
-          </div>
-
-          {/* Action Box for Supabase */}
-          <div className="p-8 rounded-3xl bg-slate-900/90 border border-slate-800 backdrop-blur-xl shadow-xl space-y-6">
-            <h2 className="text-xl font-bold text-white flex items-center space-x-2">
-              <Sparkles className="w-5 h-5 text-emerald-400" />
-              <span>Enable $0-Budget Supabase Storage</span>
-            </h2>
-
-            <p className="text-slate-300 text-sm leading-relaxed">
-              Supabase Storage is included free in your Supabase project with zero credit card required. Presigned upload URLs will be issued directly through your Supabase API key.
-            </p>
-
-            {successMsg && activeProvider === 'supabase' && (
-              <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm flex items-center space-x-2">
-                <CheckCircle2 className="w-5 h-5 flex-shrink-0" />
-                <span>{successMsg}</span>
+              <div className="text-xs text-emerald-400 flex items-center space-x-2">
+                <CheckCircle2 className="w-4 h-4" />
+                <span>100% Free Default Stack ($0 Budget)</span>
               </div>
-            )}
-
-            {errorMsg && activeTab === 'supabase' && (
-              <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm flex items-center space-x-2">
-                <AlertCircle className="w-5 h-5 flex-shrink-0" />
-                <span>{errorMsg}</span>
-              </div>
-            )}
-
-            <button
-              type="button"
-              onClick={handleEnableSupabaseStorage}
-              disabled={loading}
-              className="px-8 py-3.5 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 hover:from-emerald-500 hover:to-cyan-500 shadow-xl shadow-emerald-600/20 transition-all flex items-center space-x-2 disabled:opacity-50"
-            >
-              {loading ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  <span>Enabling Supabase Storage...</span>
-                </>
-              ) : (
-                <>
-                  <ShieldCheck className="w-4 h-4" />
-                  <span>Save & Enable Supabase Storage</span>
-                </>
-              )}
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* TAB 2: CLOUDFLARE R2 / S3 */}
-      {activeTab === 'cloudflare_r2' && (
-        <div className="space-y-6">
-          {/* Step-by-Step R2 Setup Guide */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="p-6 rounded-2xl bg-slate-900/60 border border-slate-800">
-              <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-cyan-500/20 text-cyan-400 mb-3 inline-block">Step 1</span>
-              <h3 className="text-white font-bold text-base mb-2">Create R2 Bucket</h3>
-              <p className="text-slate-400 text-xs leading-relaxed">
-                Log into <a href="https://dash.cloudflare.com/" target="_blank" rel="noopener noreferrer" className="text-cyan-400 underline">Cloudflare Portal</a>, navigate to <strong>R2 Object Storage</strong>, and click <em>Create Bucket</em>.
-              </p>
             </div>
+          )}
 
-            <div className="p-6 rounded-2xl bg-slate-900/60 border border-slate-800">
-              <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-violet-500/20 text-violet-400 mb-3 inline-block">Step 2</span>
-              <h3 className="text-white font-bold text-base mb-2">Generate S3 API Tokens</h3>
-              <p className="text-slate-400 text-xs leading-relaxed">
-                Click <strong>Manage R2 API Tokens</strong>, create a token with <strong>Object Read & Write</strong> permissions, and copy credentials.
-              </p>
-            </div>
-
-            <div className="p-6 rounded-2xl bg-slate-900/60 border border-slate-800">
-              <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-400 mb-3 inline-block">Step 3</span>
-              <h3 className="text-white font-bold text-base mb-2">Enable Public Access</h3>
-              <p className="text-slate-400 text-xs leading-relaxed">
-                Under bucket settings, enable <strong>Public Access</strong> or attach a Custom Domain (e.g. <code>pub-xxx.r2.dev</code>).
-              </p>
-            </div>
-          </div>
-
-          {/* R2 Credentials Form */}
-          <div className="p-8 rounded-3xl bg-slate-900/90 border border-slate-800 backdrop-blur-xl shadow-xl">
-            <h2 className="text-xl font-bold text-white mb-6 flex items-center space-x-2">
-              <Key className="w-5 h-5 text-cyan-400" />
-              <span>Cloudflare R2 Connection Credentials</span>
-            </h2>
-
-            <form onSubmit={handleTestAndSaveR2} className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-2">Cloudflare Account ID *</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. a1b2c3d4e5f67890abcdef1234567890"
-                    value={accountId}
-                    onChange={(e) => setAccountId(e.target.value)}
-                    className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-white text-sm focus:outline-none focus:border-cyan-500 font-mono transition-colors"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-2">Bucket Name *</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. puffiflow-myvideos"
-                    value={bucketName}
-                    onChange={(e) => setBucketName(e.target.value)}
-                    className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-white text-sm focus:outline-none focus:border-cyan-500 transition-colors"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-2">Access Key ID *</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. 8493021abcf..."
-                    value={accessKeyId}
-                    onChange={(e) => setAccessKeyId(e.target.value)}
-                    className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-white text-sm focus:outline-none focus:border-cyan-500 font-mono transition-colors"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-2">Secret Access Key *</label>
-                  <input
-                    type="password"
-                    required
-                    placeholder="••••••••••••••••••••••••••••••••"
-                    value={secretAccessKey}
-                    onChange={(e) => setSecretAccessKey(e.target.value)}
-                    className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-white text-sm focus:outline-none focus:border-cyan-500 font-mono transition-colors"
-                  />
-                </div>
-              </div>
-
+          {/* PROVIDER: SUPABASE CUSTOM */}
+          {selectedProvider === 'supabase_custom' && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-2">
-                  Public Domain / R2 Public URL (Optional)
-                </label>
+                <label className="block text-xs font-semibold text-slate-300 mb-2">Custom Supabase Project URL *</label>
                 <input
-                  type="text"
-                  placeholder="e.g. https://pub-xxxxxx.r2.dev or https://videos.mycustomdomain.com"
-                  value={publicDomain}
-                  onChange={(e) => setPublicDomain(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-white text-sm focus:outline-none focus:border-cyan-500 transition-colors"
+                  type="url"
+                  required
+                  placeholder="https://xyzcompany.supabase.co"
+                  value={supabaseUrl}
+                  onChange={(e) => setSupabaseUrl(e.target.value)}
+                  className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-white text-sm focus:outline-none focus:border-violet-500 font-mono transition-colors"
                 />
               </div>
 
-              {successMsg && activeProvider === 'cloudflare_r2' && (
-                <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm flex items-center space-x-2">
-                  <CheckCircle2 className="w-5 h-5 flex-shrink-0" />
-                  <span>{successMsg}</span>
-                </div>
-              )}
-
-              {errorMsg && activeTab === 'cloudflare_r2' && (
-                <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm flex items-center space-x-2">
-                  <AlertCircle className="w-5 h-5 flex-shrink-0" />
-                  <span>{errorMsg}</span>
-                </div>
-              )}
-
-              <div className="flex flex-col sm:flex-row items-center gap-4 pt-4">
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full sm:w-auto px-8 py-3.5 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-cyan-600 via-blue-600 to-violet-600 hover:from-cyan-500 hover:to-violet-500 shadow-xl shadow-cyan-600/20 transition-all flex items-center justify-center space-x-2 disabled:opacity-50"
-                >
-                  {loading ? (
-                    <>
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      <span>Verifying HeadBucket Connection...</span>
-                    </>
-                  ) : (
-                    <>
-                      <ShieldCheck className="w-4 h-4" />
-                      <span>Test & Save Connection</span>
-                    </>
-                  )}
-                </button>
-
-                <a
-                  href="https://dash.cloudflare.com/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full sm:w-auto px-6 py-3.5 rounded-xl font-semibold text-sm text-slate-300 bg-slate-950 border border-slate-800 hover:bg-slate-800 transition-colors flex items-center justify-center space-x-2"
-                >
-                  <span>Open Cloudflare R2 Portal</span>
-                  <ExternalLink className="w-4 h-4 text-orange-400" />
-                </a>
+              <div>
+                <label className="block text-xs font-semibold text-slate-300 mb-2">Service Role Key *</label>
+                <input
+                  type="password"
+                  required
+                  placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6..."
+                  value={supabaseServiceRoleKey}
+                  onChange={(e) => setSupabaseServiceRoleKey(e.target.value)}
+                  className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-white text-sm focus:outline-none focus:border-violet-500 font-mono transition-colors"
+                />
               </div>
-            </form>
-          </div>
-        </div>
-      )}
+            </div>
+          )}
+
+          {/* PROVIDER: CLOUDFLARE R2 */}
+          {selectedProvider === 'cloudflare_r2' && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-xs font-semibold text-slate-300 mb-2">Cloudflare Account ID *</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. a1b2c3d4e5f67890abcdef1234567890"
+                  value={accountId}
+                  onChange={(e) => setAccountId(e.target.value)}
+                  className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-white text-sm focus:outline-none focus:border-violet-500 font-mono transition-colors"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-300 mb-2">R2 Access Key ID *</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. 8493021abcf..."
+                  value={accessKeyId}
+                  onChange={(e) => setAccessKeyId(e.target.value)}
+                  className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-white text-sm focus:outline-none focus:border-violet-500 font-mono transition-colors"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-300 mb-2">R2 Secret Access Key *</label>
+                <input
+                  type="password"
+                  required
+                  placeholder="••••••••••••••••••••••••••••••••"
+                  value={secretAccessKey}
+                  onChange={(e) => setSecretAccessKey(e.target.value)}
+                  className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-white text-sm focus:outline-none focus:border-violet-500 font-mono transition-colors"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-300 mb-2">Bucket Name *</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="puffiflow-videos"
+                  value={bucketName}
+                  onChange={(e) => setBucketName(e.target.value)}
+                  className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-white text-sm focus:outline-none focus:border-violet-500 transition-colors"
+                />
+              </div>
+            </div>
+          )}
+
+          {/* PROVIDER: AWS S3 */}
+          {selectedProvider === 'aws_s3' && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-xs font-semibold text-slate-300 mb-2">AWS Region *</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="us-east-1"
+                  value={s3Region}
+                  onChange={(e) => setS3Region(e.target.value)}
+                  className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-white text-sm focus:outline-none focus:border-violet-500 transition-colors"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-300 mb-2">Bucket Name *</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="my-s3-video-bucket"
+                  value={bucketName}
+                  onChange={(e) => setBucketName(e.target.value)}
+                  className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-white text-sm focus:outline-none focus:border-violet-500 transition-colors"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-300 mb-2">Access Key ID *</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="AKIAIOSFODNN7EXAMPLE"
+                  value={accessKeyId}
+                  onChange={(e) => setAccessKeyId(e.target.value)}
+                  className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-white text-sm focus:outline-none focus:border-violet-500 font-mono transition-colors"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-300 mb-2">Secret Access Key *</label>
+                <input
+                  type="password"
+                  required
+                  placeholder="wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
+                  value={secretAccessKey}
+                  onChange={(e) => setSecretAccessKey(e.target.value)}
+                  className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-white text-sm focus:outline-none focus:border-violet-500 font-mono transition-colors"
+                />
+              </div>
+            </div>
+          )}
+
+          {/* PROVIDER: BACKBLAZE B2 / WASABI / GENERIC S3 */}
+          {(selectedProvider === 'backblaze_b2' || selectedProvider === 'wasabi') && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-xs font-semibold text-slate-300 mb-2">
+                  S3 Endpoint URL {selectedProvider === 'backblaze_b2' ? '(e.g. https://s3.us-west-004.backblazeb2.com)' : '(e.g. https://s3.wasabisys.com)'}
+                </label>
+                <input
+                  type="url"
+                  placeholder={selectedProvider === 'backblaze_b2' ? 'https://s3.us-west-004.backblazeb2.com' : 'https://s3.wasabisys.com'}
+                  value={s3Endpoint}
+                  onChange={(e) => setS3Endpoint(e.target.value)}
+                  className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-white text-sm focus:outline-none focus:border-violet-500 font-mono transition-colors"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-300 mb-2">Region *</label>
+                <input
+                  type="text"
+                  required
+                  placeholder={selectedProvider === 'backblaze_b2' ? 'us-west-004' : 'us-east-1'}
+                  value={s3Region}
+                  onChange={(e) => setS3Region(e.target.value)}
+                  className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-white text-sm focus:outline-none focus:border-violet-500 transition-colors"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-300 mb-2">Bucket Name *</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="puffiflow-videos"
+                  value={bucketName}
+                  onChange={(e) => setBucketName(e.target.value)}
+                  className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-white text-sm focus:outline-none focus:border-violet-500 transition-colors"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-300 mb-2">Access Key ID *</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Access Key ID"
+                  value={accessKeyId}
+                  onChange={(e) => setAccessKeyId(e.target.value)}
+                  className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-white text-sm focus:outline-none focus:border-violet-500 font-mono transition-colors"
+                />
+              </div>
+
+              <div className="md:col-span-2">
+                <label className="block text-xs font-semibold text-slate-300 mb-2">Secret Access Key *</label>
+                <input
+                  type="password"
+                  required
+                  placeholder="Secret Access Key"
+                  value={secretAccessKey}
+                  onChange={(e) => setSecretAccessKey(e.target.value)}
+                  className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-white text-sm focus:outline-none focus:border-violet-500 font-mono transition-colors"
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Optional Public CDN Domain for S3 Providers */}
+          {selectedProvider !== 'supabase_default' && (
+            <div>
+              <label className="block text-xs font-semibold text-slate-300 mb-2">Public CDN Domain / Direct URL (Optional)</label>
+              <input
+                type="text"
+                placeholder="e.g. https://cdn.mycompany.com or https://pub-xxx.r2.dev"
+                value={publicDomain}
+                onChange={(e) => setPublicDomain(e.target.value)}
+                className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-white text-sm focus:outline-none focus:border-violet-500 transition-colors"
+              />
+            </div>
+          )}
+
+          {/* Toast Messages */}
+          {successMsg && (
+            <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm flex items-center space-x-2">
+              <CheckCircle2 className="w-5 h-5 flex-shrink-0" />
+              <span>{successMsg}</span>
+            </div>
+          )}
+
+          {errorMsg && (
+            <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm flex items-center space-x-2">
+              <AlertCircle className="w-5 h-5 flex-shrink-0" />
+              <span>{errorMsg}</span>
+            </div>
+          )}
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full sm:w-auto px-8 py-3.5 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-violet-600 via-indigo-600 to-cyan-600 hover:from-violet-500 hover:to-cyan-500 shadow-xl shadow-violet-600/25 transition-all flex items-center justify-center space-x-2 disabled:opacity-50"
+          >
+            {loading ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span>Verifying & Saving Connection...</span>
+              </>
+            ) : (
+              <>
+                <ShieldCheck className="w-4 h-4" />
+                <span>Save & Enable Storage</span>
+              </>
+            )}
+          </button>
+        </form>
+      </div>
     </div>
   );
 }
 
 export default function StorageSetupPage() {
   return (
-    <Suspense fallback={
-      <div className="max-w-5xl mx-auto px-6 py-20 text-center text-slate-400 flex items-center justify-center">
-        <Loader2 className="w-6 h-6 animate-spin text-violet-400 mr-2" />
-        <span>Loading storage configuration console...</span>
-      </div>
-    }>
-      <StorageSetupForm />
+    <Suspense
+      fallback={
+        <div className="max-w-5xl mx-auto px-6 py-20 text-center text-slate-400 flex items-center justify-center">
+          <Loader2 className="w-6 h-6 animate-spin text-violet-400 mr-2" />
+          <span>Loading multi-cloud storage console...</span>
+        </div>
+      }
+    >
+      <MultiCloudStorageSetupForm />
     </Suspense>
   );
 }

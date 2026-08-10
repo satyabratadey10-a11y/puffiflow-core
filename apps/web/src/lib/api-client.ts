@@ -74,14 +74,14 @@ export async function setupSupabaseStorage(userId: string): Promise<{
   return res.json();
 }
 
-export async function verifyStorageSetup(payload: VerifyStoragePayload): Promise<{
+export async function setupMultiCloudStorage(payload: VerifyStoragePayload): Promise<{
   success: boolean;
   message: string;
   storageProvider: StorageProvider;
   bucketName: string;
-  publicDomain: string;
+  publicDomain?: string;
 }> {
-  const res = await fetch(`${API_BASE_URL}/api/storage/verify`, {
+  const res = await fetch(`${API_BASE_URL}/api/storage/setup`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
@@ -89,10 +89,20 @@ export async function verifyStorageSetup(payload: VerifyStoragePayload): Promise
 
   if (!res.ok) {
     const errorData = await res.json().catch(() => ({}));
-    throw new Error(errorData.error || errorData.details || 'Failed to verify Cloudflare R2 credentials');
+    throw new Error(errorData.error || errorData.details || 'Failed to save storage configuration');
   }
 
   return res.json();
+}
+
+export async function verifyStorageSetup(payload: VerifyStoragePayload): Promise<{
+  success: boolean;
+  message: string;
+  storageProvider: StorageProvider;
+  bucketName: string;
+  publicDomain: string;
+}> {
+  return setupMultiCloudStorage({ ...payload, provider: payload.provider || 'cloudflare_r2' }) as any;
 }
 
 export async function getStorageStatus(userId: string): Promise<{
@@ -103,12 +113,12 @@ export async function getStorageStatus(userId: string): Promise<{
 }> {
   const res = await fetch(`${API_BASE_URL}/api/storage/status?userId=${encodeURIComponent(userId)}`);
   if (!res.ok) {
-    return { storageSetupCompleted: false, storageProvider: 'supabase', bucketName: null, publicDomain: null };
+    return { storageSetupCompleted: false, storageProvider: 'supabase_default', bucketName: null, publicDomain: null };
   }
   const data = await res.json();
   return {
     storageSetupCompleted: !!data.storageSetupCompleted,
-    storageProvider: (data.storageProvider as StorageProvider) || 'supabase',
+    storageProvider: (data.storageProvider as StorageProvider) || 'supabase_default',
     bucketName: data.bucketName || null,
     publicDomain: data.publicDomain || null
   };

@@ -1,12 +1,12 @@
 import { Router, Request, Response } from 'express';
-import { verifyR2Credentials } from '../services/r2';
+import { verifyR2Credentials, verifyS3Credentials } from '../services/r2';
 import { encryptToken } from '../services/crypto';
-import { saveUserStorageCredentials, saveUserSupabaseStorage, getUserById, getSupabaseClient } from '../services/supabase';
+import { saveUserStorageCredentials, saveUserSupabaseStorage, saveUserMultiCloudStorage, getUserById, getSupabaseClient } from '../services/supabase';
 import { VerifyStorageDto } from '../types';
 
 const router = Router();
 
-// Handler function for setup-supabase
+// Handler function for setup-supabase (Free Default)
 async function handleSetupSupabase(req: Request, res: Response) {
   try {
     const supabaseAdmin = getSupabaseClient();
@@ -18,7 +18,7 @@ async function handleSetupSupabase(req: Request, res: Response) {
     if (authHeader && authHeader.startsWith('Bearer ')) {
       const token = authHeader.replace('Bearer ', '').trim();
       if (token) {
-        const { data: { user }, error: userError } = await supabaseAdmin.auth.getUser(token);
+        const { data: { user } } = await supabaseAdmin.auth.getUser(token);
         if (user) {
           targetUserId = user.id;
           userEmail = user.email || userEmail;
@@ -41,16 +41,15 @@ async function handleSetupSupabase(req: Request, res: Response) {
       console.warn('[Storage Setup] Bucket listing/creation warning:', bucketErr.message || bucketErr);
     }
 
-    // Update user record in database
     await saveUserSupabaseStorage(targetUserId);
 
-    console.log(`[Storage Setup] Successfully enabled Supabase Storage for user ${targetUserId}`);
+    console.log(`[Storage Setup] Successfully enabled Supabase Default Storage for user ${targetUserId}`);
 
     return res.status(200).json({
       success: true,
-      message: 'Supabase Storage enabled successfully!',
-      storage_provider: 'supabase',
-      storageProvider: 'supabase',
+      message: 'Supabase Default Storage enabled successfully!',
+      storage_provider: 'supabase_default',
+      storageProvider: 'supabase_default',
       storageSetupCompleted: true,
       bucketName: 'puffiflow-videos'
     });
@@ -60,63 +59,158 @@ async function handleSetupSupabase(req: Request, res: Response) {
   }
 }
 
-// Register both /storage/setup-supabase and /setup-supabase routes
 router.post('/storage/setup-supabase', handleSetupSupabase);
 router.post('/setup-supabase', handleSetupSupabase);
 
-// 2. Verify R2 credentials & save to user profile
-router.post('/storage/verify', async (req: Request, res: Response) => {
+// Unified Multi-Cloud Storage Setup & Verification Endpoint
+router.post('/storage/setup', async (req: Request, res: Response) => {
   try {
-    const { userId, accountId, accessKeyId, secretAccessKey, bucketName, publicDomain }: VerifyStorageDto = req.body;
+    const {
+      userId,
+      provider,
+      accountId,
+      accessKeyId,
+      secretAccessKey,
+      bucketName,
+      publicDomain,
+      s3Endpoint,
+      s3Region,
+      supabaseUrl,
+      supabaseServiceRoleKey,
+    }: VerifyStorageDto = req.body;
 
-    if (!userId || !accountId || !accessKeyId || !secretAccessKey || !bucketName) {
-      return res.status(400).json({
-        error: 'Missing required parameters (userId, accountId, accessKeyId, secretAccessKey, bucketName)'
+    if (!userId || !provider) {
+      return res.status(400).json({ error: 'Missing userId or provider parameter.' });
+    }
+
+    const bName = bucketName?.trim() || 'puffiflow-videos';
+
+    // 1. Supabase Default
+    if (provider === 'supabase_default' || provider === 'supabase') {
+      await saveUserSupabaseStorage(userId);
+      return res.status(200).json({
+        success: true,
+        message: 'Supabase Default Storage enabled successfully!',
+        storageSetupCompleted: true,
+        storage_provider: 'supabase_default',
+        storageProvider: 'supabase_default',
+        bucketName: bName,
       });
     }
 
-    // Test bucket access using HeadBucket Command
-    console.log(`[Storage Verification] Testing R2 credentials for user ${userId}, bucket: ${bucketName}...`);
-    await verifyR2Credentials(accountId, accessKeyId, secretAccessKey, bucketName);
+    // 2. Supabase Custom
+    if (provider === 'supabase_custom') {
+      if (!supabaseUrl || !supabaseServiceRoleKey) {
+        return res.status(400).json({ error: 'Missing custom Supabase URL or Service Role Key.' });
+      }
 
-    // Encrypt sensitive AWS/R2 credentials before storing in Supabase
-    const encryptedAccountId = encryptToken(accountId);
-    const encryptedAccessKeyId = encryptToken(accessKeyId);
-    const encryptedSecretAccessKey = encryptToken(secretAccessKey);
+      await saveUserMultiCloudStorage(userId, {
+        provider: 'supabase_custom',
+        supabaseUrl: supabaseUrl.trim(),
+        encryptedSupabaseRoleKey: encryptToken(supabaseServiceRoleKey.trim()),
+        bucketName: bName,
+      });
+
+      return res.status(200).json({
+        success: true,
+        message: 'Custom Supabase Storage configuration saved successfully!',
+        storageSetupCompleted: true,
+        storage_provider: 'supabase_custom',
+        storageProvider: 'supabase_custom',
+        bucketName: bName,
+      });
+    }
+
+    // 3. Cloudflare R2
+    if (provider === 'cloudflare_r2') {
+      if (!accountId || !accessKeyId || !secretAccessKey) {
+        return res.status(400).json({ error: 'Missing required Cloudflare R2 parameters (accountId, accessKeyId, secretAccessKey, bucketName).' });
+      }
+
+      await verifyR2Credentials(accountId.trim(), accessKeyId.trim(), secretAccessKey.trim(), bName);
+
+      const formattedPublicDomain = publicDomain && publicDomain.trim() !== ''
+        ? (publicDomain.startsWith('http') ? publicDomain.trim() : `https://${publicDomain.trim()}`)
+        : `https://${bName}.${accountId.trim()}.r2.cloudflarestorage.com`;
+
+      await saveUserMultiCloudStorage(userId, {
+        provider: 'cloudflare_r2',
+        encryptedAccountId: encryptToken(accountId.trim()),
+        encryptedAccessKey: encryptToken(accessKeyId.trim()),
+        encryptedSecretKey: encryptToken(secretAccessKey.trim()),
+        bucketName: bName,
+        publicDomain: formattedPublicDomain,
+      });
+
+      return res.status(200).json({
+        success: true,
+        message: 'Cloudflare R2 connection verified and saved successfully!',
+        storageSetupCompleted: true,
+        storage_provider: 'cloudflare_r2',
+        storageProvider: 'cloudflare_r2',
+        bucketName: bName,
+        publicDomain: formattedPublicDomain,
+      });
+    }
+
+    // 4. AWS S3, Backblaze B2, Wasabi, or Generic S3 Compatible Storage
+    if (!accessKeyId || !secretAccessKey) {
+      return res.status(400).json({ error: 'Missing Access Key ID or Secret Access Key for S3 provider.' });
+    }
+
+    let defaultEndpoint = s3Endpoint?.trim();
+    let defaultRegion = s3Region?.trim() || 'us-east-1';
+
+    if (provider === 'backblaze_b2' && !defaultEndpoint) {
+      defaultEndpoint = 'https://s3.us-west-004.backblazeb2.com';
+      defaultRegion = s3Region?.trim() || 'us-west-004';
+    } else if (provider === 'wasabi' && !defaultEndpoint) {
+      defaultEndpoint = 'https://s3.wasabisys.com';
+      defaultRegion = s3Region?.trim() || 'us-east-1';
+    }
+
+    console.log(`[Storage Verification] Testing S3 provider (${provider}) for user ${userId}, bucket ${bName}...`);
+    await verifyS3Credentials(defaultEndpoint, defaultRegion, accessKeyId.trim(), secretAccessKey.trim(), bName);
 
     const formattedPublicDomain = publicDomain && publicDomain.trim() !== ''
-      ? (publicDomain.startsWith('http') ? publicDomain : `https://${publicDomain}`)
-      : `https://${bucketName}.${accountId}.r2.cloudflarestorage.com`;
+      ? (publicDomain.startsWith('http') ? publicDomain.trim() : `https://${publicDomain.trim()}`)
+      : (defaultEndpoint ? `${defaultEndpoint.replace(/\/$/, '')}/${bName}` : `https://${bName}.s3.${defaultRegion}.amazonaws.com`);
 
-    await saveUserStorageCredentials(userId, {
-      encryptedAccountId,
-      encryptedAccessKeyId,
-      encryptedSecretAccessKey,
-      bucketName,
-      publicDomain: formattedPublicDomain
+    await saveUserMultiCloudStorage(userId, {
+      provider,
+      s3Endpoint: defaultEndpoint || null,
+      s3Region: defaultRegion,
+      encryptedAccessKey: encryptToken(accessKeyId.trim()),
+      encryptedSecretKey: encryptToken(secretAccessKey.trim()),
+      bucketName: bName,
+      publicDomain: formattedPublicDomain,
     });
-
-    console.log(`[Storage Verification] Successfully verified & saved R2 credentials for user ${userId}`);
 
     return res.status(200).json({
       success: true,
-      message: 'Cloudflare R2 storage connection verified and saved successfully!',
+      message: `${provider.toUpperCase()} storage connection verified and saved successfully!`,
       storageSetupCompleted: true,
-      storage_provider: 'cloudflare_r2',
-      storageProvider: 'cloudflare_r2',
-      bucketName,
-      publicDomain: formattedPublicDomain
+      storage_provider: provider,
+      storageProvider: provider,
+      bucketName: bName,
+      publicDomain: formattedPublicDomain,
     });
   } catch (error: any) {
-    console.error('[Storage Verification Error]:', error);
+    console.error('[Storage Setup Error]:', error);
     return res.status(400).json({
-      error: 'Failed to verify Cloudflare R2 bucket connection',
-      details: error.message
+      error: 'Failed to save or verify storage configuration',
+      details: error.message,
     });
   }
 });
 
-// 3. Check user storage setup status
+// Legacy R2 verification route for backward compatibility
+router.post('/storage/verify', async (req: Request, res: Response) => {
+  req.body.provider = 'cloudflare_r2';
+  return router.handle(req, res, () => {});
+});
+
+// Check user storage setup status
 router.get('/storage/status', async (req: Request, res: Response) => {
   try {
     const userId = req.query.userId as string;
@@ -129,13 +223,16 @@ router.get('/storage/status', async (req: Request, res: Response) => {
       return res.status(404).json({ error: 'User not found' });
     }
 
+    const bucketName = user.s3_bucket_name || user.r2_bucket_name || null;
+    const publicDomain = user.r2_public_domain || null;
+
     return res.status(200).json({
       success: true,
       storageSetupCompleted: user.storage_setup_completed || false,
-      storage_provider: user.storage_provider || 'supabase',
-      storageProvider: user.storage_provider || 'supabase',
-      bucketName: user.r2_bucket_name || null,
-      publicDomain: user.r2_public_domain || null
+      storage_provider: user.storage_provider || 'supabase_default',
+      storageProvider: user.storage_provider || 'supabase_default',
+      bucketName,
+      publicDomain,
     });
   } catch (error: any) {
     console.error('[Storage Status Error]:', error);

@@ -1,26 +1,40 @@
--- PuffiFlow Supabase PostgreSQL Database Schema (BYOS, Dual-Storage & Auth Profiles)
+-- PuffiFlow Supabase PostgreSQL Database Schema (BYOS Multi-Cloud Storage & Auth Profiles)
 
 -- Enable UUID extension if not already enabled
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
--- 1. Users Table (Dual-Storage Architecture: Supabase Storage & Cloudflare R2)
+-- 1. Users Table (Multi-Cloud BYOS Storage Architecture: Supabase Default/Custom, Cloudflare R2, AWS S3, Backblaze B2, Wasabi)
 CREATE TABLE IF NOT EXISTS public.users (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   email TEXT UNIQUE NOT NULL,
   google_id TEXT UNIQUE,
   youtube_refresh_token TEXT, -- Encrypted AES-256 string
-  r2_account_id TEXT,         -- Encrypted AES-256 string
+  r2_account_id TEXT,         -- Encrypted AES-256 string (Cloudflare R2)
   r2_access_key_id TEXT,     -- Encrypted AES-256 string
   r2_secret_access_key TEXT, -- Encrypted AES-256 string
   r2_bucket_name TEXT,       -- Plaintext bucket name
-  r2_public_domain TEXT,     -- Plaintext public R2 domain
-  storage_provider TEXT DEFAULT 'supabase', -- Options: 'supabase' | 'cloudflare_r2'
+  r2_public_domain TEXT,     -- Plaintext public domain
+  s3_endpoint TEXT,          -- Custom S3 endpoint URL (Backblaze B2, Wasabi, MinIO, etc.)
+  s3_region TEXT DEFAULT 'us-east-1', -- AWS / S3 Region
+  s3_access_key TEXT,        -- Encrypted AES-256 string
+  s3_secret_key TEXT,        -- Encrypted AES-256 string
+  s3_bucket_name TEXT,       -- Plaintext bucket name
+  supabase_url TEXT,         -- Custom Supabase Project URL
+  supabase_service_role_key TEXT, -- Encrypted AES-256 string
+  storage_provider TEXT DEFAULT 'supabase_default', -- Options: 'supabase_default' | 'supabase_custom' | 'cloudflare_r2' | 'aws_s3' | 'backblaze_b2' | 'wasabi'
   storage_setup_completed BOOLEAN DEFAULT FALSE,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- Migration for existing environments
-ALTER TABLE public.users ADD COLUMN IF NOT EXISTS storage_provider TEXT DEFAULT 'supabase';
+-- Migrations for multi-cloud storage columns
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS storage_provider TEXT DEFAULT 'supabase_default';
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS s3_endpoint TEXT;
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS s3_region TEXT DEFAULT 'us-east-1';
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS s3_access_key TEXT;
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS s3_secret_key TEXT;
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS s3_bucket_name TEXT;
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS supabase_url TEXT;
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS supabase_service_role_key TEXT;
 
 -- 2. Jobs Table (Rich Video Metadata & Resolution Controls)
 CREATE TABLE IF NOT EXISTS public.jobs (

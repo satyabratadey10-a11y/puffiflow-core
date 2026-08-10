@@ -1,6 +1,6 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { config } from '../config/env';
-import { JobRecord, UserRecord, CreateJobDto } from '../types';
+import { JobRecord, UserRecord, CreateJobDto, StorageProvider } from '../types';
 
 let supabaseClient: SupabaseClient | null = null;
 
@@ -35,7 +35,7 @@ export async function findOrCreateUser(email: string, googleId: string): Promise
 
   const { data: created, error: insertErr } = await client
     .from('users')
-    .insert([{ email, google_id: googleId, storage_provider: 'supabase', storage_setup_completed: false }])
+    .insert([{ email, google_id: googleId, storage_provider: 'supabase_default', storage_setup_completed: false }])
     .select()
     .single();
 
@@ -63,7 +63,8 @@ export async function saveUserSupabaseStorage(userId: string): Promise<void> {
   const { error } = await client
     .from('users')
     .update({
-      storage_provider: 'supabase',
+      storage_provider: 'supabase_default',
+      s3_bucket_name: 'puffiflow-videos',
       r2_bucket_name: 'puffiflow-videos',
       storage_setup_completed: true,
     })
@@ -71,6 +72,49 @@ export async function saveUserSupabaseStorage(userId: string): Promise<void> {
 
   if (error) {
     throw new Error(`Failed to save Supabase Storage setup: ${error.message}`);
+  }
+}
+
+export async function saveUserMultiCloudStorage(
+  userId: string,
+  payload: {
+    provider: StorageProvider;
+    s3Endpoint?: string | null;
+    s3Region?: string | null;
+    encryptedAccessKey?: string | null;
+    encryptedSecretKey?: string | null;
+    bucketName?: string | null;
+    publicDomain?: string | null;
+    encryptedAccountId?: string | null;
+    supabaseUrl?: string | null;
+    encryptedSupabaseRoleKey?: string | null;
+  }
+): Promise<void> {
+  const client = getSupabaseClient();
+  const updatePayload: Record<string, any> = {
+    storage_provider: payload.provider,
+    storage_setup_completed: true,
+    s3_endpoint: payload.s3Endpoint || null,
+    s3_region: payload.s3Region || 'us-east-1',
+    s3_access_key: payload.encryptedAccessKey || null,
+    s3_secret_key: payload.encryptedSecretKey || null,
+    s3_bucket_name: payload.bucketName || 'puffiflow-videos',
+    r2_account_id: payload.encryptedAccountId || null,
+    r2_access_key_id: payload.encryptedAccessKey || null,
+    r2_secret_access_key: payload.encryptedSecretKey || null,
+    r2_bucket_name: payload.bucketName || 'puffiflow-videos',
+    r2_public_domain: payload.publicDomain || null,
+    supabase_url: payload.supabaseUrl || null,
+    supabase_service_role_key: payload.encryptedSupabaseRoleKey || null,
+  };
+
+  const { error } = await client
+    .from('users')
+    .update(updatePayload)
+    .eq('id', userId);
+
+  if (error) {
+    throw new Error(`Failed to save storage configuration: ${error.message}`);
   }
 }
 
@@ -84,23 +128,14 @@ export async function saveUserStorageCredentials(
     publicDomain: string;
   }
 ): Promise<void> {
-  const client = getSupabaseClient();
-  const { error } = await client
-    .from('users')
-    .update({
-      r2_account_id: credentials.encryptedAccountId,
-      r2_access_key_id: credentials.encryptedAccessKeyId,
-      r2_secret_access_key: credentials.encryptedSecretAccessKey,
-      r2_bucket_name: credentials.bucketName,
-      r2_public_domain: credentials.publicDomain,
-      storage_provider: 'cloudflare_r2',
-      storage_setup_completed: true,
-    })
-    .eq('id', userId);
-
-  if (error) {
-    throw new Error(`Failed to save encrypted R2 storage credentials: ${error.message}`);
-  }
+  return saveUserMultiCloudStorage(userId, {
+    provider: 'cloudflare_r2',
+    encryptedAccountId: credentials.encryptedAccountId,
+    encryptedAccessKey: credentials.encryptedAccessKeyId,
+    encryptedSecretKey: credentials.encryptedSecretAccessKey,
+    bucketName: credentials.bucketName,
+    publicDomain: credentials.publicDomain,
+  });
 }
 
 export async function getUserById(userId: string): Promise<UserRecord | null> {
