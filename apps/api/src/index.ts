@@ -7,6 +7,7 @@ import jobsRouter from './routes/jobs';
 import cronRouter from './routes/cron';
 import authRouter from './routes/auth';
 import storageRouter from './routes/storage';
+import youtubeRouter from './routes/youtube';
 
 const app = express();
 
@@ -23,6 +24,7 @@ app.use('/api', uploadRouter);
 app.use('/api', jobsRouter);
 app.use('/api', cronRouter);
 app.use('/api', authRouter);
+app.use('/api', youtubeRouter);
 app.use('/api', storageRouter);
 
 // Start Express Server

@@ -1,4 +1,4 @@
-import { JobRecord, VerifyStoragePayload, StorageProvider } from '../types';
+import { JobRecord, VerifyStoragePayload, StorageProvider, YoutubeStatusResponse } from '../types';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
@@ -160,10 +160,18 @@ export async function getUserJobs(userId: string): Promise<JobRecord[]> {
 }
 
 export async function getYoutubeAuthUrl(userId: string): Promise<string> {
-  const res = await fetch(`${API_BASE_URL}/api/auth/youtube/url?userId=${encodeURIComponent(userId)}`);
+  return `${API_BASE_URL}/api/auth/youtube?userId=${encodeURIComponent(userId)}`;
+}
+
+export async function getYoutubeStatus(userId: string): Promise<YoutubeStatusResponse> {
+  const res = await fetch(`${API_BASE_URL}/api/youtube/status?userId=${encodeURIComponent(userId)}`);
   if (!res.ok) {
-    throw new Error('Failed to fetch YouTube Auth URL');
+    return { connected: false };
   }
   const data = await res.json();
-  return data.url;
+  return {
+    connected: !!data.connected,
+    channelId: data.channelId || null,
+    channelTitle: data.channelTitle || null,
+  };
 }

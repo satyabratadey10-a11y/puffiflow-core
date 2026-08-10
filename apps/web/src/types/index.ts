@@ -14,6 +14,8 @@ export interface UserRecord {
   email: string;
   google_id: string;
   youtube_refresh_token: string | null;
+  youtube_channel_id: string | null;
+  youtube_channel_title: string | null;
   r2_account_id: string | null;
   r2_access_key_id: string | null;
   r2_secret_access_key: string | null;
@@ -59,4 +61,10 @@ export interface VerifyStoragePayload {
   s3Region?: string;
   supabaseUrl?: string;
   supabaseServiceRoleKey?: string;
+}
+
+export interface YoutubeStatusResponse {
+  connected: boolean;
+  channelId?: string | null;
+  channelTitle?: string | null;
 }

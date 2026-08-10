@@ -7,13 +7,15 @@ export type StorageProvider =
   | 'aws_s3'
   | 'backblaze_b2'
   | 'wasabi'
-  | 'supabase'; // Backward compatibility alias
+  | 'supabase';
 
 export interface UserRecord {
   id: string;
   email: string;
   google_id: string;
   youtube_refresh_token: string | null;
+  youtube_channel_id: string | null;
+  youtube_channel_title: string | null;
   r2_account_id: string | null;
   r2_access_key_id: string | null;
   r2_secret_access_key: string | null;

@@ -1,14 +1,16 @@
--- PuffiFlow Supabase PostgreSQL Database Schema (BYOS Multi-Cloud Storage & Auth Profiles)
+-- PuffiFlow Supabase PostgreSQL Database Schema (BYOS Multi-Cloud Storage, YouTube v3 OAuth & Auth Profiles)
 
 -- Enable UUID extension if not already enabled
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
--- 1. Users Table (Multi-Cloud BYOS Storage Architecture: Supabase Default/Custom, Cloudflare R2, AWS S3, Backblaze B2, Wasabi)
+-- 1. Users Table (Multi-Cloud BYOS Storage Architecture & YouTube Channel Integration)
 CREATE TABLE IF NOT EXISTS public.users (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   email TEXT UNIQUE NOT NULL,
   google_id TEXT UNIQUE,
   youtube_refresh_token TEXT, -- Encrypted AES-256 string
+  youtube_channel_id TEXT,    -- YouTube Channel ID (e.g. UCxxxxxxxxxxxx)
+  youtube_channel_title TEXT, -- Connected YouTube Channel Title
   r2_account_id TEXT,         -- Encrypted AES-256 string (Cloudflare R2)
   r2_access_key_id TEXT,     -- Encrypted AES-256 string
   r2_secret_access_key TEXT, -- Encrypted AES-256 string
@@ -26,7 +28,9 @@ CREATE TABLE IF NOT EXISTS public.users (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- Migrations for multi-cloud storage columns
+-- Migrations for multi-cloud storage and YouTube channel integration columns
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS youtube_channel_id TEXT;
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS youtube_channel_title TEXT;
 ALTER TABLE public.users ADD COLUMN IF NOT EXISTS storage_provider TEXT DEFAULT 'supabase_default';
 ALTER TABLE public.users ADD COLUMN IF NOT EXISTS s3_endpoint TEXT;
 ALTER TABLE public.users ADD COLUMN IF NOT EXISTS s3_region TEXT DEFAULT 'us-east-1';

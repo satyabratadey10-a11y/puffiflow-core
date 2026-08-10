@@ -1,15 +1,22 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Youtube, CheckCircle, AlertCircle, ExternalLink, RefreshCw } from 'lucide-react';
+import { Youtube, CheckCircle, AlertCircle, ExternalLink, RefreshCw, Tv } from 'lucide-react';
 import { getYoutubeAuthUrl } from '../lib/api-client';
 
 interface YoutubeAuthCardProps {
   userId: string;
   isYoutubeConnected: boolean;
+  channelTitle?: string | null;
+  channelId?: string | null;
 }
 
-export default function YoutubeAuthCard({ userId, isYoutubeConnected }: YoutubeAuthCardProps) {
+export default function YoutubeAuthCard({
+  userId,
+  isYoutubeConnected,
+  channelTitle,
+  channelId,
+}: YoutubeAuthCardProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -27,8 +34,8 @@ export default function YoutubeAuthCard({ userId, isYoutubeConnected }: YoutubeA
   };
 
   return (
-    <div className="p-6 rounded-2xl bg-slate-900/80 border border-slate-800 backdrop-blur-xl shadow-xl">
-      <div className="flex items-center justify-between mb-4">
+    <div className="p-6 rounded-2xl bg-slate-900/80 border border-slate-800 backdrop-blur-xl shadow-xl space-y-4">
+      <div className="flex items-center justify-between">
         <div className="flex items-center space-x-3">
           <div className="p-2.5 rounded-xl bg-red-500/10 text-red-500 border border-red-500/20">
             <Youtube className="w-6 h-6" />
@@ -42,7 +49,7 @@ export default function YoutubeAuthCard({ userId, isYoutubeConnected }: YoutubeA
         {isYoutubeConnected ? (
           <span className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs font-semibold">
             <CheckCircle className="w-3.5 h-3.5" />
-            <span>Channel Connected</span>
+            <span>Connected</span>
           </span>
         ) : (
           <span className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20 text-xs font-semibold">
@@ -52,12 +59,28 @@ export default function YoutubeAuthCard({ userId, isYoutubeConnected }: YoutubeA
         )}
       </div>
 
-      <p className="text-sm text-slate-300 mb-6 leading-relaxed">
-        Grant PuffiFlow background publishing permission to stream upscaled 4K MP4 videos directly to your YouTube channel when scheduled.
-      </p>
+      {!isYoutubeConnected ? (
+        <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-300 text-xs space-y-2">
+          <div className="flex items-center space-x-2 font-bold text-red-200">
+            <AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0" />
+            <span>No YouTube Channel Linked</span>
+          </div>
+          <p className="leading-relaxed">
+            Link your YouTube channel to grant PuffiFlow background publishing permission for 4K video uploads.
+          </p>
+        </div>
+      ) : (
+        <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-xs space-y-1">
+          <div className="flex items-center space-x-2 font-bold text-emerald-200">
+            <Tv className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+            <span>Channel: {channelTitle || 'Connected Channel'}</span>
+          </div>
+          {channelId && <p className="text-[11px] text-emerald-400/80 font-mono">ID: {channelId}</p>}
+        </div>
+      )}
 
       {error && (
-        <div className="mb-4 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-xs">
+        <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-xs">
           {error}
         </div>
       )}
@@ -70,7 +93,7 @@ export default function YoutubeAuthCard({ userId, isYoutubeConnected }: YoutubeA
         {loading ? (
           <>
             <RefreshCw className="w-4 h-4 animate-spin" />
-            <span>Redirecting to Google Auth...</span>
+            <span>Redirecting to Google Consent...</span>
           </>
         ) : (
           <>

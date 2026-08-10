@@ -46,11 +46,22 @@ export async function findOrCreateUser(email: string, googleId: string): Promise
   return created as UserRecord;
 }
 
-export async function saveUserRefreshToken(userId: string, encryptedRefreshToken: string): Promise<void> {
+export async function saveUserRefreshToken(
+  userId: string,
+  encryptedRefreshToken: string,
+  channelId?: string | null,
+  channelTitle?: string | null
+): Promise<void> {
   const client = getSupabaseClient();
+  const updatePayload: Record<string, any> = {
+    youtube_refresh_token: encryptedRefreshToken,
+  };
+  if (channelId) updatePayload.youtube_channel_id = channelId;
+  if (channelTitle) updatePayload.youtube_channel_title = channelTitle;
+
   const { error } = await client
     .from('users')
-    .update({ youtube_refresh_token: encryptedRefreshToken })
+    .update(updatePayload)
     .eq('id', userId);
 
   if (error) {
