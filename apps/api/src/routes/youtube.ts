@@ -1,6 +1,6 @@
 import { Router, Response } from 'express';
 import { generateYoutubeAuthUrl, exchangeCodeForTokens, getOAuth2Client } from '../services/youtube';
-import { findOrCreateUser, saveUserRefreshToken, getUserById } from '../services/supabase';
+import { findOrCreateUser, saveUserRefreshToken, getUserById, getSupabaseClient } from '../services/supabase';
 import { encryptToken } from '../services/crypto';
 import { google } from 'googleapis';
 import { requireAuth, AuthenticatedRequest } from '../middleware/auth';
@@ -83,7 +83,7 @@ router.get('/auth/youtube/callback', async (req: AuthenticatedRequest, res: Resp
       const encryptedRefreshToken = encryptToken(tokens.refresh_token);
       await saveUserRefreshToken(user.id, encryptedRefreshToken, channelId, channelTitle);
     } else if (channelId || channelTitle) {
-      const client = (await import('../services/supabase')).getSupabaseClient();
+      const client = getSupabaseClient();
       await client
         .from('users')
         .update({ youtube_channel_id: channelId, youtube_channel_title: channelTitle })

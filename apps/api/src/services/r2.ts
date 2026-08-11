@@ -99,7 +99,7 @@ export async function generatePresignedUploadUrl(
   if (provider === 'supabase_default' || provider === 'supabase') {
     const supabase = getSupabaseClient();
     const bucket = user.s3_bucket_name || user.r2_bucket_name || 'puffiflow-videos';
-    const { data, error } = await supabase.storage.from(bucket).createSignedUploadUrl(objectKey, 1800);
+    const { data, error } = await supabase.storage.from(bucket).createSignedUploadUrl(objectKey, { upsert: true });
 
     if (error || !data) {
       console.error(`[Supabase Storage Error] Failed to create signed upload URL for ${objectKey}:`, error);
@@ -121,7 +121,7 @@ export async function generatePresignedUploadUrl(
       auth: { persistSession: false },
     });
     const bucket = user.s3_bucket_name || 'puffiflow-videos';
-    const { data, error } = await customSupabase.storage.from(bucket).createSignedUploadUrl(objectKey, 1800);
+    const { data, error } = await customSupabase.storage.from(bucket).createSignedUploadUrl(objectKey, { upsert: true });
 
     if (error || !data) {
       console.error(`[Custom Supabase Storage Error] Failed to create signed upload URL for ${objectKey}:`, error);
