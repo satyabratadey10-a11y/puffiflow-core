@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Calendar, Sparkles, Loader2, CheckCircle2, Link2, Sliders, Image as ImageIcon, Video } from 'lucide-react';
+import { Calendar, Sparkles, Loader2, CheckCircle2, Link2, Sliders } from 'lucide-react';
 import { createJob } from '../lib/api-client';
 import DirectR2Upload from './DirectR2Upload';
 
@@ -27,7 +27,7 @@ export default function JobScheduler({ userId, onJobScheduled }: JobSchedulerPro
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title || !rawVideoUrl || !scheduledTime) {
-      setError('Title, raw R2 video URL, and scheduled release date/time are required.');
+      setError('Title, raw video URL, and scheduled release date/time are required.');
       return;
     }
 
@@ -65,14 +65,14 @@ export default function JobScheduler({ userId, onJobScheduled }: JobSchedulerPro
   };
 
   return (
-    <div className="p-8 rounded-3xl bg-slate-900/90 border border-slate-800 backdrop-blur-xl shadow-2xl space-y-8">
+    <div className="p-8 rounded-2xl liquid-glass-card space-y-8">
       <div className="flex items-center space-x-3">
-        <div className="p-3 rounded-2xl bg-gradient-to-tr from-violet-600 to-cyan-500 text-white shadow-lg shadow-violet-600/20">
+        <div className="p-3 rounded-2xl bg-gradient-to-tr from-emerald-500 via-teal-500 to-cyan-500 text-white shadow-md shadow-emerald-500/20">
           <Calendar className="w-6 h-6" />
         </div>
         <div>
-          <h3 className="text-xl font-bold text-white">Create & Schedule Video Job</h3>
-          <p className="text-xs text-slate-400">BYOS S3 Uploads, AI Quality Enhancements & YouTube Release</p>
+          <h3 className="text-xl font-extrabold text-slate-900">Create & Schedule Video Job</h3>
+          <p className="text-xs font-medium text-slate-500">BYOS S3 Uploads, AI Quality Enhancements & YouTube Release</p>
         </div>
       </div>
 
@@ -92,57 +92,57 @@ export default function JobScheduler({ userId, onJobScheduled }: JobSchedulerPro
         />
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6 pt-4 border-t border-slate-800">
-        <h4 className="text-sm font-bold text-white uppercase tracking-wider flex items-center space-x-2">
-          <Sliders className="w-4 h-4 text-cyan-400" />
+      <form onSubmit={handleSubmit} className="space-y-6 pt-6 border-t border-slate-200/80">
+        <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center space-x-2">
+          <Sliders className="w-4 h-4 text-emerald-600" />
           <span>Video Metadata & Release Options</span>
         </h4>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-2">Video Title *</label>
+            <label className="block text-xs font-bold text-slate-800 mb-2">Video Title *</label>
             <input
               type="text"
               required
               placeholder="e.g. 4K Ultra HD Cyberpunk Cinematic Showcase"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-white text-sm focus:outline-none focus:border-violet-500 transition-colors"
+              className="w-full px-4 py-3 rounded-2xl bg-white border border-slate-200 text-slate-900 text-sm focus:outline-none focus:border-emerald-500 shadow-sm transition-colors"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-2">Related YouTube Video ID (Optional)</label>
+            <label className="block text-xs font-bold text-slate-800 mb-2">Related YouTube Video ID (Optional)</label>
             <div className="relative">
               <input
                 type="text"
                 placeholder="e.g. dQw4w9WgXcQ (Links Short to Long video)"
                 value={relatedVideoId}
                 onChange={(e) => setRelatedVideoId(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-white text-sm focus:outline-none focus:border-violet-500 font-mono transition-colors"
+                className="w-full pl-10 pr-4 py-3 rounded-2xl bg-white border border-slate-200 text-slate-900 text-sm focus:outline-none focus:border-emerald-500 font-mono shadow-sm transition-colors"
               />
-              <Link2 className="w-4 h-4 text-slate-500 absolute left-3.5 top-3.5" />
+              <Link2 className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
             </div>
           </div>
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-slate-300 mb-2">Description</label>
+          <label className="block text-xs font-bold text-slate-800 mb-2">Description</label>
           <textarea
             rows={3}
             placeholder="Full video description for YouTube release..."
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-white text-sm focus:outline-none focus:border-violet-500 transition-colors"
+            className="w-full px-4 py-3 rounded-2xl bg-white border border-slate-200 text-slate-900 text-sm focus:outline-none focus:border-emerald-500 shadow-sm transition-colors"
           />
         </div>
 
         {/* AI & Quality Controls */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-4 rounded-2xl bg-slate-950/60 border border-slate-800">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-5 rounded-2xl bg-slate-50/80 border border-slate-200">
           <div className="flex items-center justify-between">
             <div>
-              <span className="text-sm font-bold text-white block">AI Quality Enhancer</span>
-              <span className="text-xs text-slate-400">Apply Real-ESRGAN GPU sharpening filter chain</span>
+              <span className="text-sm font-bold text-slate-900 block">AI Quality Enhancer</span>
+              <span className="text-xs text-slate-500">Apply Real-ESRGAN GPU sharpening filter chain</span>
             </div>
             <label className="relative inline-flex items-center cursor-pointer">
               <input
@@ -151,20 +151,20 @@ export default function JobScheduler({ userId, onJobScheduled }: JobSchedulerPro
                 onChange={(e) => setAiEnhancerEnabled(e.target.checked)}
                 className="sr-only peer"
               />
-              <div className="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gradient-to-r peer-checked:from-violet-600 peer-checked:to-cyan-500"></div>
+              <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gradient-to-r peer-checked:from-emerald-500 peer-checked:to-cyan-500"></div>
             </label>
           </div>
 
           <div>
-            <span className="text-sm font-bold text-white block mb-2">Target Output Resolution</span>
+            <span className="text-sm font-bold text-slate-900 block mb-2">Target Output Resolution</span>
             <div className="flex space-x-3">
               <button
                 type="button"
                 onClick={() => setTargetResolution('1080p')}
-                className={`flex-1 py-2 rounded-xl text-xs font-bold border transition-colors ${
+                className={`flex-1 py-2.5 rounded-xl text-xs font-bold border transition-colors ${
                   targetResolution === '1080p'
-                    ? 'bg-cyan-500/20 text-cyan-400 border-cyan-500/40'
-                    : 'bg-slate-900 text-slate-400 border-slate-800 hover:text-white'
+                    ? 'bg-emerald-50 text-emerald-700 border-emerald-300'
+                    : 'bg-white text-slate-600 border-slate-200 hover:text-slate-900'
                 }`}
               >
                 1080p Full HD
@@ -172,10 +172,10 @@ export default function JobScheduler({ userId, onJobScheduled }: JobSchedulerPro
               <button
                 type="button"
                 onClick={() => setTargetResolution('4K')}
-                className={`flex-1 py-2 rounded-xl text-xs font-bold border transition-colors ${
+                className={`flex-1 py-2.5 rounded-xl text-xs font-bold border transition-colors ${
                   targetResolution === '4K'
-                    ? 'bg-violet-500/20 text-violet-400 border-violet-500/40'
-                    : 'bg-slate-900 text-slate-400 border-slate-800 hover:text-white'
+                    ? 'bg-cyan-50 text-cyan-700 border-cyan-300'
+                    : 'bg-white text-slate-600 border-slate-200 hover:text-slate-900'
                 }`}
               >
                 4K Ultra HD (3840x2160)
@@ -186,37 +186,37 @@ export default function JobScheduler({ userId, onJobScheduled }: JobSchedulerPro
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-2">Scheduled Release Date & Time *</label>
+            <label className="block text-xs font-bold text-slate-800 mb-2">Scheduled Release Date & Time *</label>
             <input
               type="datetime-local"
               required
               value={scheduledTime}
               onChange={(e) => setScheduledTime(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-white text-sm focus:outline-none focus:border-violet-500 transition-colors"
+              className="w-full px-4 py-3 rounded-2xl bg-white border border-slate-200 text-slate-900 text-sm focus:outline-none focus:border-emerald-500 shadow-sm transition-colors"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-2">R2 Raw Video Stream URL</label>
+            <label className="block text-xs font-bold text-slate-800 mb-2">Presigned Storage Stream URL</label>
             <input
               type="url"
               readOnly
               value={rawVideoUrl}
-              placeholder="Upload raw video above to populate R2 URL"
-              className="w-full px-4 py-3 rounded-xl bg-slate-950/80 border border-slate-800 text-slate-400 text-xs font-mono"
+              placeholder="Upload raw video above to populate stream URL"
+              className="w-full px-4 py-3 rounded-2xl bg-slate-50 border border-slate-200 text-slate-500 text-xs font-mono"
             />
           </div>
         </div>
 
         {successMsg && (
-          <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm flex items-center space-x-2">
-            <CheckCircle2 className="w-5 h-5 flex-shrink-0" />
+          <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm flex items-center space-x-2">
+            <CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0" />
             <span>{successMsg}</span>
           </div>
         )}
 
         {error && (
-          <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
+          <div className="p-4 rounded-2xl bg-red-50 border border-red-200 text-red-800 text-sm">
             {error}
           </div>
         )}
@@ -224,12 +224,12 @@ export default function JobScheduler({ userId, onJobScheduled }: JobSchedulerPro
         <button
           type="submit"
           disabled={loading || !rawVideoUrl}
-          className="w-full py-4 px-6 rounded-xl font-extrabold text-base text-white bg-gradient-to-r from-violet-600 via-indigo-600 to-cyan-600 hover:from-violet-500 hover:to-cyan-500 transition-all shadow-xl shadow-violet-600/30 flex items-center justify-center space-x-3 disabled:opacity-50"
+          className="w-full py-4 px-6 rounded-2xl font-bold text-base text-white bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 hover:from-emerald-600 hover:to-cyan-600 shadow-lg shadow-emerald-500/25 hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-center space-x-3 disabled:opacity-50"
         >
           {loading ? (
             <>
               <Loader2 className="w-5 h-5 animate-spin" />
-              <span>Dispatching Modal GPU Job & Scheduling YouTube Release...</span>
+              <span>Dispatching Modal GPU Job & Scheduling Release...</span>
             </>
           ) : (
             <>

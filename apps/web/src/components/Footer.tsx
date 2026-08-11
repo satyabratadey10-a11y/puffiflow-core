@@ -1,34 +1,38 @@
-'use client';
-
 import React from 'react';
-import { Sparkles, Github, Heart } from 'lucide-react';
+import Link from 'next/link';
+import { Sparkles, ShieldCheck } from 'lucide-react';
 
 export default function Footer() {
   return (
-    <footer className="border-t border-slate-800/80 bg-slate-950 py-10 text-slate-400 text-sm">
-      <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-6">
+    <footer className="border-t border-slate-200/80 bg-white/80 backdrop-blur-lg py-12 px-6 relative z-10">
+      <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
         <div className="flex items-center space-x-3">
-          <div className="p-2 rounded-xl bg-violet-600/20 text-violet-400 border border-violet-500/30">
+          <div className="p-2 rounded-2xl bg-gradient-to-tr from-emerald-500 to-cyan-500 text-white shadow-md shadow-emerald-500/20">
             <Sparkles className="w-5 h-5" />
           </div>
-          <span className="font-extrabold text-white text-base tracking-tight">PuffiFlow Core</span>
-          <span className="text-xs text-slate-500">© 2026 PuffiFlow Architecture. All rights reserved.</span>
+          <div>
+            <span className="text-lg font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600">
+              PuffiFlow
+            </span>
+            <p className="text-xs text-slate-500">Autonomous 4K Video Upscaling & Scheduled YouTube Publishing</p>
+          </div>
         </div>
 
-        <div className="flex items-center space-x-6">
-          <span className="flex items-center space-x-1 text-xs text-slate-400">
-            <span>Built with</span>
-            <Heart className="w-3.5 h-3.5 text-red-500 fill-current" />
-            <span>for $0-Budget Serverless Stack</span>
-          </span>
-          <a
-            href="https://github.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-slate-400 hover:text-white transition-colors"
-          >
-            <Github className="w-5 h-5" />
-          </a>
+        <div className="flex items-center space-x-6 text-xs font-semibold text-slate-600">
+          <Link href="/#features" className="hover:text-emerald-600 transition-colors">
+            Architecture
+          </Link>
+          <Link href="/dashboard/setup" className="hover:text-emerald-600 transition-colors">
+            BYOS Storage Setup
+          </Link>
+          <Link href="/dashboard" className="hover:text-emerald-600 transition-colors">
+            Workspace Console
+          </Link>
+        </div>
+
+        <div className="flex items-center space-x-2 text-xs text-slate-500">
+          <ShieldCheck className="w-4 h-4 text-emerald-600" />
+          <span>© {new Date().getFullYear()} PuffiFlow Core. All rights reserved.</span>
         </div>
       </div>
     </footer>

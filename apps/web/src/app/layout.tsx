@@ -41,11 +41,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="dark scroll-smooth">
-      <body className="bg-[#090d16] text-gray-100 flex flex-col min-h-screen selection:bg-violet-500 selection:text-white">
-        <Toaster position="top-right" richColors theme="dark" />
+    <html lang="en" className="scroll-smooth">
+      <body className="bg-white text-slate-900 flex flex-col min-h-screen selection:bg-emerald-500 selection:text-white relative">
+        <Toaster position="top-right" richColors theme="light" />
         <Navbar />
-        <main className="flex-grow">{children}</main>
+        <main className="flex-grow relative z-10">{children}</main>
         <Footer />
       </body>
     </html>

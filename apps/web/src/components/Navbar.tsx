@@ -35,33 +35,33 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="sticky top-0 z-50 backdrop-blur-xl bg-slate-950/70 border-b border-slate-800/80 px-6 py-4">
+    <nav className="sticky top-0 z-50 backdrop-blur-md bg-white/80 border-b border-slate-200/70 shadow-sm shadow-slate-100/50 px-6 py-4 transition-all">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         <Link href="/" className="flex items-center space-x-3 group">
-          <div className="p-2 rounded-xl bg-gradient-to-tr from-violet-600 to-cyan-500 group-hover:scale-105 transition-transform duration-200">
-            <Sparkles className="w-6 h-6 text-white" />
+          <div className="p-2 rounded-2xl bg-gradient-to-tr from-emerald-500 via-teal-500 to-cyan-500 group-hover:scale-105 transition-transform duration-200 shadow-md shadow-emerald-500/20">
+            <Sparkles className="w-5 h-5 text-white" />
           </div>
           <div>
-            <span className="text-xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-violet-400 via-cyan-400 to-white">
+            <span className="text-xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600">
               PuffiFlow
             </span>
-            <span className="ml-2 text-xs font-semibold px-2 py-0.5 rounded-full bg-violet-500/20 text-violet-300 border border-violet-500/30">
+            <span className="ml-2 text-xs font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
               4K AI Core
             </span>
           </div>
         </Link>
 
-        <div className="hidden md:flex items-center space-x-8 text-sm font-medium text-slate-300">
-          <Link href="/#features" className="hover:text-cyan-400 transition-colors flex items-center space-x-1.5">
-            <Zap className="w-4 h-4 text-cyan-400" />
+        <div className="hidden md:flex items-center space-x-8 text-sm font-semibold text-slate-600">
+          <Link href="/#features" className="hover:text-emerald-600 transition-colors flex items-center space-x-1.5">
+            <Zap className="w-4 h-4 text-emerald-500" />
             <span>Architecture</span>
           </Link>
-          <Link href="/dashboard/setup" className="hover:text-amber-400 transition-colors flex items-center space-x-1.5">
-            <Cloud className="w-4 h-4 text-amber-400" />
-            <span>BYOS Storage Setup</span>
+          <Link href="/dashboard/setup" className="hover:text-cyan-600 transition-colors flex items-center space-x-1.5">
+            <Cloud className="w-4 h-4 text-cyan-500" />
+            <span>BYOS Storage</span>
           </Link>
-          <Link href="/dashboard" className="hover:text-violet-400 transition-colors flex items-center space-x-1.5">
-            <Video className="w-4 h-4 text-violet-400" />
+          <Link href="/dashboard" className="hover:text-teal-600 transition-colors flex items-center space-x-1.5">
+            <Video className="w-4 h-4 text-teal-500" />
             <span>Upscale & Publish</span>
           </Link>
         </div>
@@ -71,15 +71,15 @@ export default function Navbar() {
             <div className="flex items-center space-x-3">
               <Link
                 href="/dashboard"
-                className="px-4 py-2 rounded-xl font-semibold text-xs text-white bg-slate-900 border border-slate-800 hover:bg-slate-800 transition-all flex items-center space-x-1.5"
+                className="px-4 py-2 rounded-2xl font-semibold text-xs text-slate-800 bg-slate-100/90 border border-slate-200/80 hover:bg-slate-200/80 transition-all flex items-center space-x-1.5"
               >
-                <User className="w-3.5 h-3.5 text-cyan-400" />
-                <span className="max-w-[120px] truncate">{user.email}</span>
+                <User className="w-3.5 h-3.5 text-emerald-600" />
+                <span className="max-w-[120px] truncate font-medium">{user.email}</span>
               </Link>
               <button
                 type="button"
                 onClick={handleSignOut}
-                className="px-3.5 py-2 rounded-xl font-semibold text-xs text-slate-300 bg-slate-900/80 hover:bg-red-500/10 hover:text-red-400 border border-slate-800 transition-colors flex items-center space-x-1.5"
+                className="px-3.5 py-2 rounded-2xl font-semibold text-xs text-slate-700 bg-slate-100/80 hover:bg-red-50 hover:text-red-600 border border-slate-200/80 transition-colors flex items-center space-x-1.5"
               >
                 <LogOut className="w-3.5 h-3.5" />
                 <span className="hidden sm:inline">Sign Out</span>
@@ -89,14 +89,14 @@ export default function Navbar() {
             <div className="flex items-center space-x-3">
               <Link
                 href="/login"
-                className="px-4 py-2 rounded-xl font-semibold text-xs text-slate-300 hover:text-white bg-slate-900 border border-slate-800 hover:bg-slate-800 transition-all flex items-center space-x-1.5"
+                className="px-4 py-2 rounded-2xl font-semibold text-xs text-slate-800 hover:text-slate-950 bg-slate-100/90 border border-slate-200/80 hover:bg-slate-200/80 transition-all flex items-center space-x-1.5"
               >
-                <LogIn className="w-3.5 h-3.5 text-cyan-400" />
+                <LogIn className="w-3.5 h-3.5 text-emerald-600" />
                 <span>Log In</span>
               </Link>
               <Link
                 href="/signup"
-                className="px-4 py-2 rounded-xl font-bold text-xs text-white bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 shadow-md shadow-violet-600/20 transition-all hover:scale-105"
+                className="px-4 py-2 rounded-2xl font-bold text-xs text-white bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 hover:from-emerald-600 hover:to-cyan-600 shadow-md shadow-emerald-500/25 transition-all hover:scale-105"
               >
                 <span>Sign Up</span>
               </Link>

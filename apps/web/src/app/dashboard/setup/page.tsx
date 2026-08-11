@@ -113,7 +113,7 @@ function MultiCloudStorageSetupForm() {
         }
       } catch (err) {
         console.error('Failed to fetch storage status:', err);
-      } finally {
+      } font-medium: finally {
         setStatusLoading(false);
       }
     }
@@ -154,370 +154,375 @@ function MultiCloudStorageSetupForm() {
   };
 
   return (
-    <div className="max-w-5xl mx-auto px-6 py-10 space-y-8">
-      {/* Top Navigation */}
-      <div className="flex items-center justify-between">
-        <Link
-          href={`/dashboard?userId=${userId}`}
-          className="inline-flex items-center space-x-2 text-sm text-slate-400 hover:text-white transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          <span>Back to Dashboard</span>
-        </Link>
+    <div className="min-h-screen bg-white relative py-10 px-6">
+      {/* Slow-floating ambient background gradient sphere */}
+      <div className="absolute top-10 left-10 w-[500px] h-[500px] bg-gradient-to-tr from-emerald-200/30 via-teal-200/20 to-cyan-200/30 blur-[130px] rounded-full pointer-events-none animate-blob" />
 
-        <a
-          href="https://supabase.com/dashboard"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center space-x-2 px-4 py-2 rounded-xl bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 border border-emerald-500/30 text-xs font-semibold transition-all"
-        >
-          <span>Supabase Portal</span>
-          <ExternalLink className="w-3.5 h-3.5" />
-        </a>
-      </div>
-
-      {/* Main Header Banner */}
-      <div className="p-8 rounded-3xl bg-slate-900/90 border border-slate-800 backdrop-blur-xl shadow-2xl relative overflow-hidden">
-        <div className="flex items-start space-x-4">
-          <div className="p-3 rounded-2xl bg-violet-500/10 text-violet-400 border border-violet-500/20">
-            <Globe className="w-8 h-8" />
-          </div>
-          <div>
-            <h1 className="text-2xl md:text-3xl font-extrabold text-white">Universal BYOS Multi-Cloud Architecture</h1>
-            <p className="text-slate-400 text-sm mt-1">
-              Select your preferred object storage provider: <strong>Supabase (Default/Custom)</strong>, <strong>Cloudflare R2</strong>, <strong>AWS S3</strong>, <strong>Backblaze B2</strong>, or <strong>Wasabi</strong>.
-            </p>
-          </div>
-        </div>
-
-        {setupCompleted && (
-          <div className="mt-6 p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <CheckCircle2 className="w-5 h-5 flex-shrink-0" />
-              <span className="font-semibold">
-                Active Provider: {PROVIDER_OPTIONS.find((p) => p.id === activeProvider)?.name || activeProvider} (Bucket: {activeBucket || 'puffiflow-videos'})
-              </span>
-            </div>
-            <Link
-              href={`/dashboard?userId=${userId}`}
-              className="px-3.5 py-1.5 rounded-lg bg-emerald-500 text-slate-950 text-xs font-bold hover:bg-emerald-400 transition-colors"
-            >
-              Go to Dashboard
-            </Link>
-          </div>
-        )}
-      </div>
-
-      {/* Multi-Cloud Provider Cards Selector */}
-      <div className="space-y-4">
-        <label className="block text-sm font-semibold text-slate-200">Select Object Storage Provider</label>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {PROVIDER_OPTIONS.map((prov) => {
-            const IconComponent = prov.icon;
-            const isSelected = selectedProvider === prov.id;
-            return (
-              <button
-                key={prov.id}
-                type="button"
-                onClick={() => {
-                  setSelectedProvider(prov.id);
-                  setErrorMsg(null);
-                  setSuccessMsg(null);
-                }}
-                className={`p-5 rounded-2xl text-left transition-all border flex flex-col justify-between space-y-3 ${
-                  isSelected
-                    ? 'bg-slate-800/90 border-violet-500 shadow-xl shadow-violet-500/10 ring-2 ring-violet-500/50'
-                    : 'bg-slate-900/60 border-slate-800 hover:bg-slate-800/50 hover:border-slate-700'
-                }`}
-              >
-                <div className="flex items-center justify-between w-full">
-                  <div className={`p-2 rounded-xl ${isSelected ? 'bg-violet-500/20 text-violet-300' : 'bg-slate-800 text-slate-400'}`}>
-                    <IconComponent className="w-5 h-5" />
-                  </div>
-                  <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-slate-950 border border-slate-800 text-slate-300">
-                    {prov.badge}
-                  </span>
-                </div>
-                <div>
-                  <h3 className="font-bold text-sm text-white">{prov.name}</h3>
-                  <p className="text-slate-400 text-xs mt-1 leading-relaxed">{prov.desc}</p>
-                </div>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Configuration Form Box */}
-      <div className="p-8 rounded-3xl bg-slate-900/90 border border-slate-800 backdrop-blur-xl shadow-xl space-y-6">
-        <h2 className="text-xl font-bold text-white flex items-center space-x-2">
-          <Key className="w-5 h-5 text-violet-400" />
-          <span>Configure {PROVIDER_OPTIONS.find((p) => p.id === selectedProvider)?.name}</span>
-        </h2>
-
-        {/* Dynamic Provider Form Inputs */}
-        <form onSubmit={handleSaveStorage} className="space-y-6">
-          {/* PROVIDER: SUPABASE DEFAULT */}
-          {selectedProvider === 'supabase_default' && (
-            <div className="p-6 rounded-2xl bg-slate-950/60 border border-slate-800 space-y-3">
-              <p className="text-slate-300 text-sm leading-relaxed">
-                Uses your main Supabase backend project storage bucket (<code>puffiflow-videos</code>). No additional API keys or credit card required.
-              </p>
-              <div className="text-xs text-emerald-400 flex items-center space-x-2">
-                <CheckCircle2 className="w-4 h-4" />
-                <span>100% Free Default Stack ($0 Budget)</span>
-              </div>
-            </div>
-          )}
-
-          {/* PROVIDER: SUPABASE CUSTOM */}
-          {selectedProvider === 'supabase_custom' && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-2">Custom Supabase Project URL *</label>
-                <input
-                  type="url"
-                  required
-                  placeholder="https://xyzcompany.supabase.co"
-                  value={supabaseUrl}
-                  onChange={(e) => setSupabaseUrl(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-white text-sm focus:outline-none focus:border-violet-500 font-mono transition-colors"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-2">Service Role Key *</label>
-                <input
-                  type="password"
-                  required
-                  placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6..."
-                  value={supabaseServiceRoleKey}
-                  onChange={(e) => setSupabaseServiceRoleKey(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-white text-sm focus:outline-none focus:border-violet-500 font-mono transition-colors"
-                />
-              </div>
-            </div>
-          )}
-
-          {/* PROVIDER: CLOUDFLARE R2 */}
-          {selectedProvider === 'cloudflare_r2' && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-2">Cloudflare Account ID *</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. a1b2c3d4e5f67890abcdef1234567890"
-                  value={accountId}
-                  onChange={(e) => setAccountId(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-white text-sm focus:outline-none focus:border-violet-500 font-mono transition-colors"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-2">R2 Access Key ID *</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. 8493021abcf..."
-                  value={accessKeyId}
-                  onChange={(e) => setAccessKeyId(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-white text-sm focus:outline-none focus:border-violet-500 font-mono transition-colors"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-2">R2 Secret Access Key *</label>
-                <input
-                  type="password"
-                  required
-                  placeholder="••••••••••••••••••••••••••••••••"
-                  value={secretAccessKey}
-                  onChange={(e) => setSecretAccessKey(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-white text-sm focus:outline-none focus:border-violet-500 font-mono transition-colors"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-2">Bucket Name *</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="puffiflow-videos"
-                  value={bucketName}
-                  onChange={(e) => setBucketName(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-white text-sm focus:outline-none focus:border-violet-500 transition-colors"
-                />
-              </div>
-            </div>
-          )}
-
-          {/* PROVIDER: AWS S3 */}
-          {selectedProvider === 'aws_s3' && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-2">AWS Region *</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="us-east-1"
-                  value={s3Region}
-                  onChange={(e) => setS3Region(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-white text-sm focus:outline-none focus:border-violet-500 transition-colors"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-2">Bucket Name *</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="my-s3-video-bucket"
-                  value={bucketName}
-                  onChange={(e) => setBucketName(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-white text-sm focus:outline-none focus:border-violet-500 transition-colors"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-2">Access Key ID *</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="AKIAIOSFODNN7EXAMPLE"
-                  value={accessKeyId}
-                  onChange={(e) => setAccessKeyId(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-white text-sm focus:outline-none focus:border-violet-500 font-mono transition-colors"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-2">Secret Access Key *</label>
-                <input
-                  type="password"
-                  required
-                  placeholder="wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
-                  value={secretAccessKey}
-                  onChange={(e) => setSecretAccessKey(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-white text-sm focus:outline-none focus:border-violet-500 font-mono transition-colors"
-                />
-              </div>
-            </div>
-          )}
-
-          {/* PROVIDER: BACKBLAZE B2 / WASABI / GENERIC S3 */}
-          {(selectedProvider === 'backblaze_b2' || selectedProvider === 'wasabi') && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-2">
-                  S3 Endpoint URL {selectedProvider === 'backblaze_b2' ? '(e.g. https://s3.us-west-004.backblazeb2.com)' : '(e.g. https://s3.wasabisys.com)'}
-                </label>
-                <input
-                  type="url"
-                  placeholder={selectedProvider === 'backblaze_b2' ? 'https://s3.us-west-004.backblazeb2.com' : 'https://s3.wasabisys.com'}
-                  value={s3Endpoint}
-                  onChange={(e) => setS3Endpoint(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-white text-sm focus:outline-none focus:border-violet-500 font-mono transition-colors"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-2">Region *</label>
-                <input
-                  type="text"
-                  required
-                  placeholder={selectedProvider === 'backblaze_b2' ? 'us-west-004' : 'us-east-1'}
-                  value={s3Region}
-                  onChange={(e) => setS3Region(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-white text-sm focus:outline-none focus:border-violet-500 transition-colors"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-2">Bucket Name *</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="puffiflow-videos"
-                  value={bucketName}
-                  onChange={(e) => setBucketName(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-white text-sm focus:outline-none focus:border-violet-500 transition-colors"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-2">Access Key ID *</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="Access Key ID"
-                  value={accessKeyId}
-                  onChange={(e) => setAccessKeyId(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-white text-sm focus:outline-none focus:border-violet-500 font-mono transition-colors"
-                />
-              </div>
-
-              <div className="md:col-span-2">
-                <label className="block text-xs font-semibold text-slate-300 mb-2">Secret Access Key *</label>
-                <input
-                  type="password"
-                  required
-                  placeholder="Secret Access Key"
-                  value={secretAccessKey}
-                  onChange={(e) => setSecretAccessKey(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-white text-sm focus:outline-none focus:border-violet-500 font-mono transition-colors"
-                />
-              </div>
-            </div>
-          )}
-
-          {/* Optional Public CDN Domain for S3 Providers */}
-          {selectedProvider !== 'supabase_default' && (
-            <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-2">Public CDN Domain / Direct URL (Optional)</label>
-              <input
-                type="text"
-                placeholder="e.g. https://cdn.mycompany.com or https://pub-xxx.r2.dev"
-                value={publicDomain}
-                onChange={(e) => setPublicDomain(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-white text-sm focus:outline-none focus:border-violet-500 transition-colors"
-              />
-            </div>
-          )}
-
-          {/* Toast Messages */}
-          {successMsg && (
-            <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm flex items-center space-x-2">
-              <CheckCircle2 className="w-5 h-5 flex-shrink-0" />
-              <span>{successMsg}</span>
-            </div>
-          )}
-
-          {errorMsg && (
-            <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm flex items-center space-x-2">
-              <AlertCircle className="w-5 h-5 flex-shrink-0" />
-              <span>{errorMsg}</span>
-            </div>
-          )}
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full sm:w-auto px-8 py-3.5 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-violet-600 via-indigo-600 to-cyan-600 hover:from-violet-500 hover:to-cyan-500 shadow-xl shadow-violet-600/25 transition-all flex items-center justify-center space-x-2 disabled:opacity-50"
+      <div className="max-w-5xl mx-auto space-y-8 relative z-10">
+        {/* Top Navigation */}
+        <div className="flex items-center justify-between">
+          <Link
+            href={`/dashboard?userId=${userId}`}
+            className="inline-flex items-center space-x-2 text-sm font-bold text-slate-600 hover:text-emerald-600 transition-colors"
           >
-            {loading ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin" />
-                <span>Verifying & Saving Connection...</span>
-              </>
-            ) : (
-              <>
-                <ShieldCheck className="w-4 h-4" />
-                <span>Save & Enable Storage</span>
-              </>
+            <ArrowLeft className="w-4 h-4" />
+            <span>Back to Dashboard</span>
+          </Link>
+
+          <a
+            href="https://supabase.com/dashboard"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center space-x-2 px-4 py-2 rounded-2xl bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 text-xs font-bold transition-all shadow-sm"
+          >
+            <span>Supabase Portal</span>
+            <ExternalLink className="w-3.5 h-3.5" />
+          </a>
+        </div>
+
+        {/* Main Header Banner */}
+        <div className="p-8 rounded-2xl liquid-glass-card shadow-xl relative overflow-hidden">
+          <div className="flex items-start space-x-4">
+            <div className="p-3 rounded-2xl bg-emerald-50 text-emerald-600 border border-emerald-200">
+              <Globe className="w-8 h-8" />
+            </div>
+            <div>
+              <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900">Universal BYOS Multi-Cloud Architecture</h1>
+              <p className="text-slate-600 text-sm mt-1">
+                Select your preferred object storage provider: <strong>Supabase (Default/Custom)</strong>, <strong>Cloudflare R2</strong>, <strong>AWS S3</strong>, <strong>Backblaze B2</strong>, or <strong>Wasabi</strong>.
+              </p>
+            </div>
+          </div>
+
+          {setupCompleted && (
+            <div className="mt-6 p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-sm flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0" />
+                <span className="font-bold">
+                  Active Provider: {PROVIDER_OPTIONS.find((p) => p.id === activeProvider)?.name || activeProvider} (Bucket: {activeBucket || 'puffiflow-videos'})
+                </span>
+              </div>
+              <Link
+                href={`/dashboard?userId=${userId}`}
+                className="px-4 py-2 rounded-xl bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-700 transition-colors shadow-sm"
+              >
+                Go to Dashboard
+              </Link>
+            </div>
+          )}
+        </div>
+
+        {/* Multi-Cloud Provider Cards Selector */}
+        <div className="space-y-4">
+          <label className="block text-sm font-extrabold text-slate-900">Select Object Storage Provider</label>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {PROVIDER_OPTIONS.map((prov) => {
+              const IconComponent = prov.icon;
+              const isSelected = selectedProvider === prov.id;
+              return (
+                <button
+                  key={prov.id}
+                  type="button"
+                  onClick={() => {
+                    setSelectedProvider(prov.id);
+                    setErrorMsg(null);
+                    setSuccessMsg(null);
+                  }}
+                  className={`p-5 rounded-2xl text-left transition-all border flex flex-col justify-between space-y-3 ${
+                    isSelected
+                      ? 'bg-white border-emerald-500 shadow-xl shadow-emerald-500/10 ring-2 ring-emerald-500/50'
+                      : 'bg-white/80 border-slate-200 hover:bg-slate-50 hover:border-slate-300'
+                  }`}
+                >
+                  <div className="flex items-center justify-between w-full">
+                    <div className={`p-2.5 rounded-xl ${isSelected ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-100 text-slate-500'}`}>
+                      <IconComponent className="w-5 h-5" />
+                    </div>
+                    <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-slate-100 border border-slate-200 text-slate-700">
+                      {prov.badge}
+                    </span>
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-sm text-slate-900">{prov.name}</h3>
+                    <p className="text-slate-500 text-xs mt-1 leading-relaxed">{prov.desc}</p>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Configuration Form Box */}
+        <div className="p-8 rounded-2xl liquid-glass-card shadow-xl space-y-6">
+          <h2 className="text-xl font-extrabold text-slate-900 flex items-center space-x-2">
+            <Key className="w-5 h-5 text-emerald-600" />
+            <span>Configure {PROVIDER_OPTIONS.find((p) => p.id === selectedProvider)?.name}</span>
+          </h2>
+
+          {/* Dynamic Provider Form Inputs */}
+          <form onSubmit={handleSaveStorage} className="space-y-6">
+            {/* PROVIDER: SUPABASE DEFAULT */}
+            {selectedProvider === 'supabase_default' && (
+              <div className="p-6 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
+                <p className="text-slate-700 text-sm leading-relaxed">
+                  Uses your main Supabase backend project storage bucket (<code>puffiflow-videos</code>). No additional API keys or credit card required.
+                </p>
+                <div className="text-xs text-emerald-700 font-bold flex items-center space-x-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                  <span>100% Free Default Stack ($0 Budget)</span>
+                </div>
+              </div>
             )}
-          </button>
-        </form>
+
+            {/* PROVIDER: SUPABASE CUSTOM */}
+            {selectedProvider === 'supabase_custom' && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-xs font-bold text-slate-800 mb-2">Custom Supabase Project URL *</label>
+                  <input
+                    type="url"
+                    required
+                    placeholder="https://xyzcompany.supabase.co"
+                    value={supabaseUrl}
+                    onChange={(e) => setSupabaseUrl(e.target.value)}
+                    className="w-full px-4 py-3 rounded-2xl bg-white border border-slate-200 text-slate-900 text-sm focus:outline-none focus:border-emerald-500 font-mono shadow-sm transition-colors"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-800 mb-2">Service Role Key *</label>
+                  <input
+                    type="password"
+                    required
+                    placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6..."
+                    value={supabaseServiceRoleKey}
+                    onChange={(e) => setSupabaseServiceRoleKey(e.target.value)}
+                    className="w-full px-4 py-3 rounded-2xl bg-white border border-slate-200 text-slate-900 text-sm focus:outline-none focus:border-emerald-500 font-mono shadow-sm transition-colors"
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* PROVIDER: CLOUDFLARE R2 */}
+            {selectedProvider === 'cloudflare_r2' && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-xs font-bold text-slate-800 mb-2">Cloudflare Account ID *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. a1b2c3d4e5f67890abcdef1234567890"
+                    value={accountId}
+                    onChange={(e) => setAccountId(e.target.value)}
+                    className="w-full px-4 py-3 rounded-2xl bg-white border border-slate-200 text-slate-900 text-sm focus:outline-none focus:border-emerald-500 font-mono shadow-sm transition-colors"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-800 mb-2">R2 Access Key ID *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. 8493021abcf..."
+                    value={accessKeyId}
+                    onChange={(e) => setAccessKeyId(e.target.value)}
+                    className="w-full px-4 py-3 rounded-2xl bg-white border border-slate-200 text-slate-900 text-sm focus:outline-none focus:border-emerald-500 font-mono shadow-sm transition-colors"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-800 mb-2">R2 Secret Access Key *</label>
+                  <input
+                    type="password"
+                    required
+                    placeholder="••••••••••••••••••••••••••••••••"
+                    value={secretAccessKey}
+                    onChange={(e) => setSecretAccessKey(e.target.value)}
+                    className="w-full px-4 py-3 rounded-2xl bg-white border border-slate-200 text-slate-900 text-sm focus:outline-none focus:border-emerald-500 font-mono shadow-sm transition-colors"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-800 mb-2">Bucket Name *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="puffiflow-videos"
+                    value={bucketName}
+                    onChange={(e) => setBucketName(e.target.value)}
+                    className="w-full px-4 py-3 rounded-2xl bg-white border border-slate-200 text-slate-900 text-sm focus:outline-none focus:border-emerald-500 shadow-sm transition-colors"
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* PROVIDER: AWS S3 */}
+            {selectedProvider === 'aws_s3' && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-xs font-bold text-slate-800 mb-2">AWS Region *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="us-east-1"
+                    value={s3Region}
+                    onChange={(e) => setS3Region(e.target.value)}
+                    className="w-full px-4 py-3 rounded-2xl bg-white border border-slate-200 text-slate-900 text-sm focus:outline-none focus:border-emerald-500 shadow-sm transition-colors"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-800 mb-2">Bucket Name *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="my-s3-video-bucket"
+                    value={bucketName}
+                    onChange={(e) => setBucketName(e.target.value)}
+                    className="w-full px-4 py-3 rounded-2xl bg-white border border-slate-200 text-slate-900 text-sm focus:outline-none focus:border-emerald-500 shadow-sm transition-colors"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-800 mb-2">Access Key ID *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="AKIAIOSFODNN7EXAMPLE"
+                    value={accessKeyId}
+                    onChange={(e) => setAccessKeyId(e.target.value)}
+                    className="w-full px-4 py-3 rounded-2xl bg-white border border-slate-200 text-slate-900 text-sm focus:outline-none focus:border-emerald-500 font-mono shadow-sm transition-colors"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-800 mb-2">Secret Access Key *</label>
+                  <input
+                    type="password"
+                    required
+                    placeholder="wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
+                    value={secretAccessKey}
+                    onChange={(e) => setSecretAccessKey(e.target.value)}
+                    className="w-full px-4 py-3 rounded-2xl bg-white border border-slate-200 text-slate-900 text-sm focus:outline-none focus:border-emerald-500 font-mono shadow-sm transition-colors"
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* PROVIDER: BACKBLAZE B2 / WASABI / GENERIC S3 */}
+            {(selectedProvider === 'backblaze_b2' || selectedProvider === 'wasabi') && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-xs font-bold text-slate-800 mb-2">
+                    S3 Endpoint URL {selectedProvider === 'backblaze_b2' ? '(e.g. https://s3.us-west-004.backblazeb2.com)' : '(e.g. https://s3.wasabisys.com)'}
+                  </label>
+                  <input
+                    type="url"
+                    placeholder={selectedProvider === 'backblaze_b2' ? 'https://s3.us-west-004.backblazeb2.com' : 'https://s3.wasabisys.com'}
+                    value={s3Endpoint}
+                    onChange={(e) => setS3Endpoint(e.target.value)}
+                    className="w-full px-4 py-3 rounded-2xl bg-white border border-slate-200 text-slate-900 text-sm focus:outline-none focus:border-emerald-500 font-mono shadow-sm transition-colors"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-800 mb-2">Region *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder={selectedProvider === 'backblaze_b2' ? 'us-west-004' : 'us-east-1'}
+                    value={s3Region}
+                    onChange={(e) => setS3Region(e.target.value)}
+                    className="w-full px-4 py-3 rounded-2xl bg-white border border-slate-200 text-slate-900 text-sm focus:outline-none focus:border-emerald-500 shadow-sm transition-colors"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-800 mb-2">Bucket Name *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="puffiflow-videos"
+                    value={bucketName}
+                    onChange={(e) => setBucketName(e.target.value)}
+                    className="w-full px-4 py-3 rounded-2xl bg-white border border-slate-200 text-slate-900 text-sm focus:outline-none focus:border-emerald-500 shadow-sm transition-colors"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-800 mb-2">Access Key ID *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Access Key ID"
+                    value={accessKeyId}
+                    onChange={(e) => setAccessKeyId(e.target.value)}
+                    className="w-full px-4 py-3 rounded-2xl bg-white border border-slate-200 text-slate-900 text-sm focus:outline-none focus:border-emerald-500 font-mono shadow-sm transition-colors"
+                  />
+                </div>
+
+                <div className="md:col-span-2">
+                  <label className="block text-xs font-bold text-slate-800 mb-2">Secret Access Key *</label>
+                  <input
+                    type="password"
+                    required
+                    placeholder="Secret Access Key"
+                    value={secretAccessKey}
+                    onChange={(e) => setSecretAccessKey(e.target.value)}
+                    className="w-full px-4 py-3 rounded-2xl bg-white border border-slate-200 text-slate-900 text-sm focus:outline-none focus:border-emerald-500 font-mono shadow-sm transition-colors"
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Optional Public CDN Domain for S3 Providers */}
+            {selectedProvider !== 'supabase_default' && (
+              <div>
+                <label className="block text-xs font-bold text-slate-800 mb-2">Public CDN Domain / Direct URL (Optional)</label>
+                <input
+                  type="text"
+                  placeholder="e.g. https://cdn.mycompany.com or https://pub-xxx.r2.dev"
+                  value={publicDomain}
+                  onChange={(e) => setPublicDomain(e.target.value)}
+                  className="w-full px-4 py-3 rounded-2xl bg-white border border-slate-200 text-slate-900 text-sm focus:outline-none focus:border-emerald-500 shadow-sm transition-colors"
+                />
+              </div>
+            )}
+
+            {/* Toast Messages */}
+            {successMsg && (
+              <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm flex items-center space-x-2">
+                <CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0" />
+                <span>{successMsg}</span>
+              </div>
+            )}
+
+            {errorMsg && (
+              <div className="p-4 rounded-2xl bg-red-50 border border-red-200 text-red-800 text-sm flex items-center space-x-2">
+                <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
+                <span>{errorMsg}</span>
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full sm:w-auto px-8 py-4 rounded-2xl font-bold text-sm text-white bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 hover:from-emerald-600 hover:to-cyan-600 shadow-lg shadow-emerald-500/25 hover:-translate-y-0.5 transition-all flex items-center justify-center space-x-2 disabled:opacity-50"
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>Verifying & Saving Connection...</span>
+                </>
+              ) : (
+                <>
+                  <ShieldCheck className="w-4 h-4" />
+                  <span>Save & Enable Storage</span>
+                </>
+              )}
+            </button>
+          </form>
+        </div>
       </div>
     </div>
   );
@@ -527,9 +532,9 @@ export default function StorageSetupPage() {
   return (
     <Suspense
       fallback={
-        <div className="max-w-5xl mx-auto px-6 py-20 text-center text-slate-400 flex items-center justify-center">
-          <Loader2 className="w-6 h-6 animate-spin text-violet-400 mr-2" />
-          <span>Loading multi-cloud storage console...</span>
+        <div className="max-w-5xl mx-auto px-6 py-20 text-center text-slate-500 flex items-center justify-center">
+          <Loader2 className="w-6 h-6 animate-spin text-emerald-600 mr-2" />
+          <span className="font-semibold text-sm">Loading multi-cloud storage console...</span>
         </div>
       }
     >

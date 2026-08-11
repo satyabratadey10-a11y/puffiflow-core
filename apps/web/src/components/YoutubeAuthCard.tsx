@@ -34,25 +34,25 @@ export default function YoutubeAuthCard({
   };
 
   return (
-    <div className="p-6 rounded-2xl bg-slate-900/80 border border-slate-800 backdrop-blur-xl shadow-xl space-y-4">
+    <div className="p-7 rounded-2xl liquid-glass-card space-y-5">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-3">
-          <div className="p-2.5 rounded-xl bg-red-500/10 text-red-500 border border-red-500/20">
+          <div className="p-3 rounded-2xl bg-red-50 text-red-600 border border-red-200 shadow-sm">
             <Youtube className="w-6 h-6" />
           </div>
           <div>
-            <h3 className="text-lg font-bold text-white">YouTube Integration</h3>
-            <p className="text-xs text-slate-400">OAuth v3 Encrypted Refresh Token</p>
+            <h3 className="text-lg font-extrabold text-slate-900">YouTube Integration</h3>
+            <p className="text-xs font-medium text-slate-500">OAuth v3 Encrypted Token</p>
           </div>
         </div>
 
         {isYoutubeConnected ? (
-          <span className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs font-semibold">
+          <span className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-bold">
             <CheckCircle className="w-3.5 h-3.5" />
             <span>Connected</span>
           </span>
         ) : (
-          <span className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20 text-xs font-semibold">
+          <span className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-200 text-xs font-bold">
             <AlertCircle className="w-3.5 h-3.5" />
             <span>Disconnected</span>
           </span>
@@ -60,27 +60,27 @@ export default function YoutubeAuthCard({
       </div>
 
       {!isYoutubeConnected ? (
-        <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-300 text-xs space-y-2">
-          <div className="flex items-center space-x-2 font-bold text-red-200">
-            <AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0" />
-            <span>No YouTube Channel Linked</span>
+        <div className="p-4 rounded-xl bg-red-50 border border-red-200 text-red-800 text-xs space-y-2">
+          <div className="flex items-center space-x-2 font-bold text-red-900">
+            <AlertCircle className="w-4 h-4 text-red-600 flex-shrink-0" />
+            <span>No Channel Linked</span>
           </div>
           <p className="leading-relaxed">
-            Link your YouTube channel to grant PuffiFlow background publishing permission for 4K video uploads.
+            Link your YouTube channel to grant background publishing permissions for 4K video uploads.
           </p>
         </div>
       ) : (
-        <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-xs space-y-1">
-          <div className="flex items-center space-x-2 font-bold text-emerald-200">
-            <Tv className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+        <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs space-y-1">
+          <div className="flex items-center space-x-2 font-bold text-emerald-950">
+            <Tv className="w-4 h-4 text-emerald-600 flex-shrink-0" />
             <span>Channel: {channelTitle || 'Connected Channel'}</span>
           </div>
-          {channelId && <p className="text-[11px] text-emerald-400/80 font-mono">ID: {channelId}</p>}
+          {channelId && <p className="text-[11px] text-emerald-700 font-mono">ID: {channelId}</p>}
         </div>
       )}
 
       {error && (
-        <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-xs">
+        <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs">
           {error}
         </div>
       )}
@@ -88,17 +88,17 @@ export default function YoutubeAuthCard({
       <button
         onClick={handleConnectYoutube}
         disabled={loading}
-        className="w-full py-3 px-4 rounded-xl font-semibold text-sm text-white bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 transition-all shadow-lg shadow-red-600/20 flex items-center justify-center space-x-2 disabled:opacity-50"
+        className="w-full py-3.5 px-4 rounded-2xl font-bold text-sm text-white bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 transition-all shadow-md shadow-red-600/20 flex items-center justify-center space-x-2 disabled:opacity-50"
       >
         {loading ? (
           <>
             <RefreshCw className="w-4 h-4 animate-spin" />
-            <span>Redirecting to Google Consent...</span>
+            <span>Redirecting to Google...</span>
           </>
         ) : (
           <>
             <ExternalLink className="w-4 h-4" />
-            <span>{isYoutubeConnected ? 'Reconnect YouTube Channel' : 'Connect YouTube Account'}</span>
+            <span>{isYoutubeConnected ? 'Reconnect Channel' : 'Connect YouTube Account'}</span>
           </>
         )}
       </button>
