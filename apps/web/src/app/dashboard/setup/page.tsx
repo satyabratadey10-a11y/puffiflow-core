@@ -113,7 +113,7 @@ function MultiCloudStorageSetupForm() {
         }
       } catch (err) {
         console.error('Failed to fetch storage status:', err);
-      } font-medium: finally {
+      } finally {
         setStatusLoading(false);
       }
     }
