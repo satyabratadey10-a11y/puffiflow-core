@@ -46,7 +46,7 @@ export default function SignupPage() {
     }
   };
 
-  // Debounced email existence check (500ms)
+  // Debounced email existence check (500ms) - Only flags confirmed users
   useEffect(() => {
     if (!email || !email.includes('@')) {
       setEmailAlreadyExists(false);
@@ -74,7 +74,7 @@ export default function SignupPage() {
     e.preventDefault();
 
     if (emailAlreadyExists) {
-      toast.error('Email is already registered. Please log in instead.');
+      toast.error('Email is already registered and confirmed. Please log in instead.');
       return;
     }
 
@@ -100,6 +100,16 @@ export default function SignupPage() {
       });
 
       if (error) {
+        // Handle unconfirmed duplicate user registration gracefully by resending verification code
+        if (
+          error.message?.toLowerCase().includes('already registered') ||
+          error.message?.toLowerCase().includes('user_already_exists')
+        ) {
+          await supabase.auth.resend({ type: 'signup', email: email.trim() });
+          toast.info('Unverified account found. A new verification code has been sent!');
+          router.push(`/verify-email?email=${encodeURIComponent(email.trim())}`);
+          return;
+        }
         toast.error(error.message);
         return;
       }
@@ -191,10 +201,10 @@ export default function SignupPage() {
               {emailChecking && <Loader2 className="w-4 h-4 text-slate-400 animate-spin absolute right-3.5 top-3.5" />}
             </div>
 
-            {/* Inline Email Exists Check */}
+            {/* Inline Confirmed Email Check */}
             {emailAlreadyExists && (
               <p className="text-xs text-amber-700 font-medium mt-1.5 flex items-center justify-between">
-                <span>Email already registered.</span>
+                <span>Account confirmed.</span>
                 <Link href="/login" className="underline font-bold hover:text-emerald-700">Log in instead?</Link>
               </p>
             )}
