@@ -1,116 +1,107 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
+import { google } from 'googleapis';
 import {
   generateYoutubeAuthUrl,
   exchangeCodeForTokens,
   getOAuth2Client,
-  getGoogleOAuthClient,
   YOUTUBE_REDIRECT_URI
 } from '../services/youtube';
 import { findOrCreateUser, saveUserRefreshToken, getUserById, getSupabaseClient } from '../services/supabase';
 import { encryptToken } from '../services/crypto';
-import { google } from 'googleapis';
 import { requireAuth, AuthenticatedRequest } from '../middleware/auth';
 
 const router = Router();
 
-export { getGoogleOAuthClient, YOUTUBE_REDIRECT_URI };
+const FRONTEND_URL = (process.env.FRONTEND_URL || 'https://puffiflow-core-web-t8e1.vercel.app').replace(/\/+$/, '');
+
+export { getOAuth2Client, YOUTUBE_REDIRECT_URI };
 
 // 1. Authorization Redirect (GET /api/auth/youtube)
-router.get('/auth/youtube', (req: AuthenticatedRequest, res: Response) => {
+router.get(['/auth/youtube', '/'], (req: Request, res: Response) => {
   const userId = (req.query.userId as string) || (req.query.state as string) || 'default-user';
   const url = generateYoutubeAuthUrl(userId);
   return res.redirect(url);
 });
 
-// Also support GET /api/auth/youtube/url for JSON client requests
-router.get('/auth/youtube/url', (req: AuthenticatedRequest, res: Response) => {
+// JSON endpoint for auth URL
+router.get('/auth/youtube/url', (req: Request, res: Response) => {
   const userId = (req.query.userId as string) || 'default-user';
   const url = generateYoutubeAuthUrl(userId);
   return res.status(200).json({ success: true, url });
 });
 
-// 2. OAuth Callback (GET /api/auth/youtube/callback)
-router.get('/auth/youtube/callback', async (req: AuthenticatedRequest, res: Response) => {
-  const code = req.query.code as string;
-  const state = req.query.state as string; // Target userId
+// 2. OAuth Callback (GET /api/auth/youtube/callback or GET /callback)
+router.get(['/auth/youtube/callback', '/callback'], async (req: Request, res: Response) => {
+  const { code, state, error } = req.query;
 
-  if (!code) {
-    return res.status(400).send('Authorization code missing');
+  if (error) {
+    console.error('[Google OAuth Error]:', error);
+    return res.redirect(`${FRONTEND_URL}/dashboard?youtube_error=${encodeURIComponent(String(error))}`);
+  }
+
+  if (!code || typeof code !== 'string') {
+    return res.redirect(`${FRONTEND_URL}/dashboard?youtube_error=missing_code`);
   }
 
   try {
-    const tokens = await exchangeCodeForTokens(code);
-    if (!tokens.refresh_token) {
-      console.warn('[YouTube OAuth Warning] Refresh token not returned by Google. User may need to revoke app access in Google Account permissions.');
-    }
-
-    const oauth2Client = getOAuth2Client();
-    oauth2Client.setCredentials(tokens);
+    const client = getOAuth2Client();
+    const { tokens } = await client.getToken({
+      code,
+      redirect_uri: YOUTUBE_REDIRECT_URI
+    });
+    client.setCredentials(tokens);
 
     // Fetch connected YouTube channel details
-    let channelId: string | null = null;
-    let channelTitle: string | null = null;
-
+    let channelId = '';
+    let channelTitle = 'Connected Channel';
     try {
-      const youtube = google.youtube({ version: 'v3', auth: oauth2Client });
+      const youtube = google.youtube({ version: 'v3', auth: client });
       const channelRes = await youtube.channels.list({
         mine: true,
-        part: ['snippet'],
+        part: ['snippet']
       });
-      if (channelRes.data.items && channelRes.data.items.length > 0) {
-        const ch = channelRes.data.items[0];
-        channelId = ch.id || null;
-        channelTitle = ch.snippet?.title || null;
+
+      const channel = channelRes.data.items?.[0];
+      if (channel) {
+        channelId = channel.id || '';
+        channelTitle = channel.snippet?.title || 'Connected Channel';
       }
     } catch (chErr: any) {
-      console.warn('[YouTube Channel Details Warning]:', chErr.message || chErr);
+      console.warn('[YouTube channels.list Warning]:', chErr?.message || chErr);
     }
 
-    // Get user email
-    let email = `user_${Date.now()}@puffiflow.io`;
-    try {
-      const oauth2 = google.oauth2({ version: 'v2', auth: oauth2Client });
-      const userInfo = await oauth2.userinfo.get();
-      if (userInfo.data.email) email = userInfo.data.email;
-    } catch (uErr: any) {
-      console.warn('[User Info Warning]:', uErr.message || uErr);
-    }
-
-    const targetUserId = state && state !== 'puffiflow' ? state : null;
-    let user;
-    if (targetUserId) {
-      user = await getUserById(targetUserId);
-    }
-
-    if (!user) {
-      user = await findOrCreateUser(email, targetUserId || `gid_${Date.now()}`);
-    }
-
-    // Save encrypted refresh token if returned, or preserve existing
+    // Encrypt refresh token if returned
+    let encryptedRefreshToken: string | null = null;
     if (tokens.refresh_token) {
-      const encryptedRefreshToken = encryptToken(tokens.refresh_token);
-      await saveUserRefreshToken(user.id, encryptedRefreshToken, channelId, channelTitle);
-    } else if (channelId || channelTitle) {
-      const client = getSupabaseClient();
-      await client
-        .from('users')
-        .update({ youtube_channel_id: channelId, youtube_channel_title: channelTitle })
-        .eq('id', user.id);
+      encryptedRefreshToken = encryptToken(tokens.refresh_token);
     }
 
-    console.log(`[YouTube OAuth] Successfully linked channel "${channelTitle}" (${channelId}) for user ${user.id}`);
+    const targetUserId = state && state !== 'puffiflow' ? String(state) : null;
+    if (targetUserId) {
+      const updatePayload: any = {
+        youtube_channel_id: channelId,
+        youtube_channel_title: channelTitle
+      };
+      if (encryptedRefreshToken) {
+        updatePayload.youtube_refresh_token = encryptedRefreshToken;
+      }
+      const supabase = getSupabaseClient();
+      await supabase.from('users').update(updatePayload).eq('id', targetUserId);
+    }
 
-    const frontendUrl = process.env.FRONTEND_URL || 'https://puffiflow-core-web-t8e1.vercel.app';
-    const redirectUrl = `${frontendUrl}/dashboard?userId=${user.id}&youtube_connected=true`;
-    return res.redirect(redirectUrl);
-  } catch (error: any) {
-    console.error('[YouTube OAuth Callback Error]:', error.message || error);
-    return res.status(500).send('OAuth Authentication failed.');
+    console.log(`[YouTube OAuth] Successfully linked channel "${channelTitle}" (${channelId}) for user ${targetUserId}`);
+
+    return res.redirect(
+      `${FRONTEND_URL}/dashboard?userId=${encodeURIComponent(targetUserId || '')}&youtube_connected=true&channel=${encodeURIComponent(channelTitle)}`
+    );
+  } catch (err: any) {
+    console.error('YouTube Token Exchange Error:', err?.response?.data || err?.message || err);
+    return res.redirect(`${FRONTEND_URL}/dashboard?youtube_error=exchange_failed`);
   }
 });
 
 // 3. Status Check (GET /api/youtube/status) - Protected & IDOR-safe
-router.get('/youtube/status', requireAuth, async (req: AuthenticatedRequest, res: Response) => {
+router.get(['/youtube/status', '/status'], requireAuth, async (req: AuthenticatedRequest, res: Response) => {
   try {
     const authenticatedUserId = req.user?.id;
     if (!authenticatedUserId) {

@@ -31,13 +31,19 @@ function DashboardContent() {
     if (qUserId) setUserId(qUserId);
   }, [qUserId]);
 
-  // Handle YouTube OAuth success callback toast
+  // Handle YouTube OAuth success / error callback toast
   useEffect(() => {
+    const ytErrorParam = searchParams.get('youtube_error');
+    const channelParam = searchParams.get('channel');
+
     if (ytConnectedParam === 'true') {
-      toast.success('YouTube Channel successfully linked!');
+      const msg = channelParam ? `YouTube Channel "${channelParam}" linked!` : 'YouTube Channel successfully linked!';
+      toast.success(msg);
       setIsYoutubeConnected(true);
+    } else if (ytErrorParam) {
+      toast.error(`YouTube connection failed: ${ytErrorParam}`);
     }
-  }, [ytConnectedParam]);
+  }, [ytConnectedParam, searchParams]);
 
   // Fetch Storage & YouTube status
   useEffect(() => {
