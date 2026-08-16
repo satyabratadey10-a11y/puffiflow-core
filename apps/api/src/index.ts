@@ -56,6 +56,16 @@ app.use(
 
 app.use(express.json({ limit: '10mb' }));
 
+// Dedicated ultra-fast health check endpoint for uptime monitoring (bypassing rate limiters & auth)
+app.get(['/health', '/api/health'], (_req: Request, res: Response) => {
+  res.status(200).json({
+    status: 'ok',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    service: 'puffiflow-core-api'
+  });
+});
+
 // 3. Global & Sensitive Endpoint Rate Limiters
 const globalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
@@ -100,7 +110,7 @@ app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
 app.listen(config.port, () => {
   console.log(`====================================================`);
   console.log(`🚀 PuffiFlow Core API Server running on port ${config.port}`);
-  console.log(`   Health Check: http://localhost:${config.port}/api/health`);
+  console.log(`   Health Check: http://localhost:${config.port}/health`);
   console.log(`====================================================`);
 });
 
