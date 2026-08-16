@@ -3,18 +3,19 @@ import fetch from 'node-fetch';
 import { Readable } from 'stream';
 import { config } from '../config/env';
 
-const API_BASE_URL = (process.env.API_URL || 'https://puffiflow-core.onrender.com')
-  .replace(/\/api\/?$/, '')
-  .replace(/\/+$/, '');
-
 export const YOUTUBE_REDIRECT_URI =
   process.env.YOUTUBE_REDIRECT_URI ||
-  config.youtubeRedirectUri ||
-  `${API_BASE_URL}/api/auth/youtube/callback`;
+  'https://puffiflow-core.onrender.com/api/auth/youtube/callback';
 
 export function getOAuth2Client() {
-  const clientId = process.env.GOOGLE_CLIENT_ID || process.env.YOUTUBE_CLIENT_ID || config.youtubeClientId;
-  const clientSecret = process.env.GOOGLE_CLIENT_SECRET || process.env.YOUTUBE_CLIENT_SECRET || config.youtubeClientSecret;
+  const clientId =
+    process.env.GOOGLE_CLIENT_ID ||
+    process.env.YOUTUBE_CLIENT_ID ||
+    config.youtubeClientId;
+  const clientSecret =
+    process.env.GOOGLE_CLIENT_SECRET ||
+    process.env.YOUTUBE_CLIENT_SECRET ||
+    config.youtubeClientSecret;
 
   return new google.auth.OAuth2(
     clientId,
@@ -24,9 +25,10 @@ export function getOAuth2Client() {
 }
 
 export const getGoogleOAuthClient = getOAuth2Client;
+export const oauth2Client = getOAuth2Client();
 
 export function generateYoutubeAuthUrl(state?: string): string {
-  const oauth2Client = getOAuth2Client();
+  const client = getOAuth2Client();
   const scopes = [
     'https://www.googleapis.com/auth/youtube.upload',
     'https://www.googleapis.com/auth/youtube.readonly',
@@ -34,17 +36,21 @@ export function generateYoutubeAuthUrl(state?: string): string {
     'https://www.googleapis.com/auth/userinfo.profile'
   ];
 
-  return oauth2Client.generateAuthUrl({
+  return client.generateAuthUrl({
     access_type: 'offline',
     prompt: 'consent',
     scope: scopes,
-    state: state || 'puffiflow'
+    state: state || 'puffiflow',
+    redirect_uri: YOUTUBE_REDIRECT_URI
   });
 }
 
 export async function exchangeCodeForTokens(code: string) {
-  const oauth2Client = getOAuth2Client();
-  const { tokens } = await oauth2Client.getToken(code);
+  const client = getOAuth2Client();
+  const { tokens } = await client.getToken({
+    code,
+    redirect_uri: YOUTUBE_REDIRECT_URI
+  });
   return tokens;
 }
 
@@ -58,8 +64,8 @@ export async function publishVideoToYoutube(options: {
 }): Promise<{ videoId: string; youtubeUrl: string }> {
   const { refreshToken, videoUrl, title, description, thumbnailUrl, relatedVideoId } = options;
 
-  const oauth2Client = getOAuth2Client();
-  oauth2Client.setCredentials({ refresh_token: refreshToken });
+  const client = getOAuth2Client();
+  client.setCredentials({ refresh_token: refreshToken });
 
   // Stream 4K video binary directly from user's R2 URL to YouTube API without local disk caching
   console.log(`[YouTube Publisher] Fetching video stream from R2 URL: ${videoUrl}`);
@@ -72,7 +78,7 @@ export async function publishVideoToYoutube(options: {
 
   const youtube = google.youtube({
     version: 'v3',
-    auth: oauth2Client
+    auth: client
   });
 
   // Prepare description with linked video reference if provided
