@@ -8,7 +8,7 @@ const router = Router();
 
 // 1. Get YouTube OAuth Authorization URL
 router.get('/auth/youtube/url', (req: Request, res: Response) => {
-  const userId = req.query.userId as string || 'default-user';
+  const userId = (req.query.userId as string) || 'default-user';
   const url = generateYoutubeAuthUrl(userId);
   return res.status(200).json({ success: true, url });
 });
@@ -43,8 +43,8 @@ router.get('/auth/youtube/callback', async (req: Request, res: Response) => {
     const user = await findOrCreateUser(email, googleId);
     await saveUserRefreshToken(user.id, encryptedRefreshToken);
 
-    // Redirect user back to Next.js dashboard with userId
-    const redirectUrl = `http://localhost:3000/dashboard?userId=${user.id}&youtubeConnected=true`;
+    const frontendUrl = process.env.FRONTEND_URL || 'https://puffiflow-core-web-t8e1.vercel.app';
+    const redirectUrl = `${frontendUrl}/dashboard?userId=${user.id}&youtubeConnected=true`;
     return res.redirect(redirectUrl);
   } catch (error: any) {
     console.error('[YouTube OAuth Callback Error]:', error);

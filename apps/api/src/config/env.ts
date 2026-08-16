@@ -6,6 +6,10 @@ dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 dotenv.config({ path: path.resolve(__dirname, '../../../../.env') });
 dotenv.config();
 
+const apiBaseUrl = (process.env.API_URL || 'https://puffiflow-core.onrender.com')
+  .replace(/\/api\/?$/, '')
+  .replace(/\/+$/, '');
+
 export const config = {
   port: process.env.PORT || 5000,
   nodeEnv: process.env.NODE_ENV || 'development',
@@ -24,9 +28,9 @@ export const config = {
   modalWebhookUrl: process.env.MODAL_WEBHOOK_URL || '',
   modalApiKey: process.env.MODAL_API_KEY || '',
 
-  youtubeClientId: process.env.YOUTUBE_CLIENT_ID || '',
-  youtubeClientSecret: process.env.YOUTUBE_CLIENT_SECRET || '',
-  youtubeRedirectUri: process.env.YOUTUBE_REDIRECT_URI || 'http://localhost:5000/api/auth/youtube/callback',
+  youtubeClientId: process.env.YOUTUBE_CLIENT_ID || process.env.GOOGLE_CLIENT_ID || '',
+  youtubeClientSecret: process.env.YOUTUBE_CLIENT_SECRET || process.env.GOOGLE_CLIENT_SECRET || '',
+  youtubeRedirectUri: process.env.YOUTUBE_REDIRECT_URI || `${apiBaseUrl}/api/auth/youtube/callback`,
 
   encryptionSecret: process.env.ENCRYPTION_KEY || process.env.ENCRYPTION_SECRET || '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
 };

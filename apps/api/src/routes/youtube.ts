@@ -1,11 +1,19 @@
 import { Router, Response } from 'express';
-import { generateYoutubeAuthUrl, exchangeCodeForTokens, getOAuth2Client } from '../services/youtube';
+import {
+  generateYoutubeAuthUrl,
+  exchangeCodeForTokens,
+  getOAuth2Client,
+  getGoogleOAuthClient,
+  YOUTUBE_REDIRECT_URI
+} from '../services/youtube';
 import { findOrCreateUser, saveUserRefreshToken, getUserById, getSupabaseClient } from '../services/supabase';
 import { encryptToken } from '../services/crypto';
 import { google } from 'googleapis';
 import { requireAuth, AuthenticatedRequest } from '../middleware/auth';
 
 const router = Router();
+
+export { getGoogleOAuthClient, YOUTUBE_REDIRECT_URI };
 
 // 1. Authorization Redirect (GET /api/auth/youtube)
 router.get('/auth/youtube', (req: AuthenticatedRequest, res: Response) => {

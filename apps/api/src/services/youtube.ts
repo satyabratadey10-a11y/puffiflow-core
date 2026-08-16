@@ -3,18 +3,33 @@ import fetch from 'node-fetch';
 import { Readable } from 'stream';
 import { config } from '../config/env';
 
+const API_BASE_URL = (process.env.API_URL || 'https://puffiflow-core.onrender.com')
+  .replace(/\/api\/?$/, '')
+  .replace(/\/+$/, '');
+
+export const YOUTUBE_REDIRECT_URI =
+  process.env.YOUTUBE_REDIRECT_URI ||
+  config.youtubeRedirectUri ||
+  `${API_BASE_URL}/api/auth/youtube/callback`;
+
 export function getOAuth2Client() {
+  const clientId = process.env.GOOGLE_CLIENT_ID || process.env.YOUTUBE_CLIENT_ID || config.youtubeClientId;
+  const clientSecret = process.env.GOOGLE_CLIENT_SECRET || process.env.YOUTUBE_CLIENT_SECRET || config.youtubeClientSecret;
+
   return new google.auth.OAuth2(
-    config.youtubeClientId,
-    config.youtubeClientSecret,
-    config.youtubeRedirectUri
+    clientId,
+    clientSecret,
+    YOUTUBE_REDIRECT_URI
   );
 }
+
+export const getGoogleOAuthClient = getOAuth2Client;
 
 export function generateYoutubeAuthUrl(state?: string): string {
   const oauth2Client = getOAuth2Client();
   const scopes = [
     'https://www.googleapis.com/auth/youtube.upload',
+    'https://www.googleapis.com/auth/youtube.readonly',
     'https://www.googleapis.com/auth/userinfo.email',
     'https://www.googleapis.com/auth/userinfo.profile'
   ];
