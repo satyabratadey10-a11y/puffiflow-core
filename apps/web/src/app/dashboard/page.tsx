@@ -83,8 +83,8 @@ function DashboardContent() {
   return (
     <div className="min-h-screen bg-white relative py-10 px-6">
       {/* Slow-floating ambient liquid background gradient sphere */}
-      <div className="absolute top-20 right-10 w-[500px] h-[500px] bg-gradient-to-br from-emerald-200/30 to-cyan-200/30 rounded-full blur-[120px] pointer-events-none animate-blob" />
-      <div className="absolute bottom-20 left-10 w-[400px] h-[400px] bg-teal-200/20 rounded-full blur-[100px] pointer-events-none animate-blob-delay-2000" />
+      <div className="absolute top-20 right-10 w-[500px] h-[500px] bg-gradient-to-br from-[#E3FDFD] to-[#CBF1F5] rounded-full blur-[120px] pointer-events-none animate-blob" />
+      <div className="absolute bottom-20 left-10 w-[400px] h-[400px] bg-[#A6E3E9]/30 rounded-full blur-[100px] pointer-events-none animate-blob-delay-2000" />
 
       <div className="max-w-7xl mx-auto space-y-8 relative z-10">
         {/* Storage Setup Required Notification Banner */}
@@ -110,11 +110,11 @@ function DashboardContent() {
         )}
 
         {/* Header Banner */}
-        <div className="p-8 rounded-2xl liquid-glass-card border border-slate-200/80 shadow-xl relative overflow-hidden">
+        <div className="p-8 rounded-2xl liquid-glass-card border border-[#A6E3E9]/60 shadow-xl relative overflow-hidden">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 relative z-10">
             <div>
-              <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold mb-3">
-                <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
+              <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-[#CBF1F5] border border-[#A6E3E9] text-[#1e484c] text-xs font-bold mb-3">
+                <Sparkles className="w-3.5 h-3.5 text-[#71C9CE]" />
                 <span>BYOS Active Workspace</span>
               </div>
               <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900">4K Automation Dashboard</h1>
@@ -126,15 +126,15 @@ function DashboardContent() {
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
               <Link
                 href={`/dashboard/setup?userId=${userId}`}
-                className="px-4 py-2.5 rounded-2xl bg-white hover:bg-slate-50 text-xs font-bold text-slate-800 border border-slate-200 shadow-sm flex items-center justify-center space-x-2 transition-colors"
+                className="px-4 py-2.5 rounded-2xl bg-white hover:bg-[#CBF1F5]/40 text-xs font-bold text-[#1e484c] border border-[#A6E3E9] shadow-sm flex items-center justify-center space-x-2 transition-colors"
               >
-                <Cloud className="w-4 h-4 text-cyan-600" />
+                <Cloud className="w-4 h-4 text-[#71C9CE]" />
                 <span>{bucketName ? `Bucket: ${bucketName}` : 'Storage Settings'}</span>
                 <Settings className="w-3.5 h-3.5 text-slate-400 ml-1" />
               </Link>
 
-              <div className="px-4 py-2.5 rounded-2xl bg-slate-100/80 border border-slate-200 text-xs text-slate-700 font-mono font-bold flex items-center justify-center space-x-2">
-                <Video className="w-4 h-4 text-emerald-600" />
+              <div className="px-4 py-2.5 rounded-2xl bg-[#CBF1F5]/80 border border-[#A6E3E9] text-xs text-[#1e484c] font-mono font-bold flex items-center justify-center space-x-2">
+                <Video className="w-4 h-4 text-[#71C9CE]" />
                 <span>User ID: {userId}</span>
               </div>
             </div>
@@ -168,7 +168,7 @@ export default function DashboardPage() {
     <Suspense
       fallback={
         <div className="max-w-7xl mx-auto px-6 py-20 text-center text-slate-500 flex items-center justify-center">
-          <Loader2 className="w-6 h-6 animate-spin text-emerald-600 mr-2" />
+          <Loader2 className="w-6 h-6 animate-spin text-[#71C9CE] mr-2" />
           <span className="font-semibold text-sm">Loading 4K Automation Dashboard...</span>
         </div>
       }

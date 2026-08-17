@@ -57,14 +57,14 @@ export default function DirectR2Upload({
   };
 
   return (
-    <div className="p-5 rounded-2xl bg-slate-50/80 border border-slate-200/80 space-y-4">
+    <div className="p-5 rounded-2xl bg-[#E3FDFD]/40 border border-[#A6E3E9] space-y-4">
       <div className="flex items-center space-x-2">
         {fileType === 'video' ? (
-          <FileVideo className="w-5 h-5 text-emerald-600" />
+          <FileVideo className="w-5 h-5 text-[#71C9CE]" />
         ) : (
-          <ImageIcon className="w-5 h-5 text-cyan-600" />
+          <ImageIcon className="w-5 h-5 text-[#5ab5bb]" />
         )}
-        <span className="text-xs font-bold text-slate-800 uppercase tracking-wider">{label}</span>
+        <span className="text-xs font-bold text-[#1e484c] uppercase tracking-wider">{label}</span>
       </div>
 
       <div className="space-y-3">
@@ -73,7 +73,7 @@ export default function DirectR2Upload({
           accept={fileType === 'video' ? 'video/*' : 'image/*'}
           onChange={handleFileChange}
           disabled={uploading}
-          className="w-full text-xs text-slate-600 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-white file:text-slate-800 file:shadow-sm hover:file:bg-slate-100 transition-all cursor-pointer"
+          className="w-full text-xs text-slate-700 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border file:border-[#A6E3E9] file:text-xs file:font-bold file:bg-white file:text-[#1e484c] file:shadow-sm hover:file:bg-[#CBF1F5] transition-all cursor-pointer"
         />
 
         {file && !completedUrl && (
@@ -81,7 +81,7 @@ export default function DirectR2Upload({
             type="button"
             onClick={handleStartUpload}
             disabled={uploading}
-            className="w-full py-2.5 px-4 rounded-xl font-bold text-xs text-white bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-600 hover:to-cyan-600 shadow-md shadow-emerald-500/20 transition-all flex items-center justify-center space-x-2 disabled:opacity-50"
+            className="w-full py-2.5 px-4 rounded-xl font-bold text-xs text-white bg-[#71C9CE] hover:bg-[#5ab5bb] shadow-md shadow-[#71C9CE]/25 transition-all flex items-center justify-center space-x-2 disabled:opacity-50"
           >
             {uploading ? (
               <>
@@ -98,17 +98,17 @@ export default function DirectR2Upload({
         )}
 
         {uploading && (
-          <div className="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
+          <div className="w-full bg-[#E3FDFD] rounded-full h-2 overflow-hidden border border-[#A6E3E9]/50">
             <div
-              className="bg-gradient-to-r from-emerald-500 to-cyan-500 h-2 rounded-full transition-all duration-300"
+              className="bg-gradient-to-r from-[#A6E3E9] to-[#71C9CE] h-2 rounded-full transition-all duration-300"
               style={{ width: `${progress}%` }}
             />
           </div>
         )}
 
         {completedUrl && (
-          <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center space-x-2">
-            <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+          <div className="p-3 rounded-xl bg-[#CBF1F5] border border-[#A6E3E9] text-[#1e484c] text-xs flex items-center space-x-2">
+            <CheckCircle2 className="w-4 h-4 text-[#71C9CE] flex-shrink-0" />
             <span className="truncate font-medium">Uploaded! Stream URL generated.</span>
           </div>
         )}

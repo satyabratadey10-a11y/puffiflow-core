@@ -67,7 +67,7 @@ export default function JobScheduler({ userId, onJobScheduled }: JobSchedulerPro
   return (
     <div className="p-8 rounded-2xl liquid-glass-card space-y-8">
       <div className="flex items-center space-x-3">
-        <div className="p-3 rounded-2xl bg-gradient-to-tr from-emerald-500 via-teal-500 to-cyan-500 text-white shadow-md shadow-emerald-500/20">
+        <div className="p-3 rounded-2xl bg-gradient-to-tr from-[#71C9CE] to-[#A6E3E9] text-white shadow-md shadow-[#71C9CE]/25">
           <Calendar className="w-6 h-6" />
         </div>
         <div>
@@ -92,9 +92,9 @@ export default function JobScheduler({ userId, onJobScheduled }: JobSchedulerPro
         />
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6 pt-6 border-t border-slate-200/80">
-        <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center space-x-2">
-          <Sliders className="w-4 h-4 text-emerald-600" />
+      <form onSubmit={handleSubmit} className="space-y-6 pt-6 border-t border-[#A6E3E9]/50">
+        <h4 className="text-xs font-bold text-[#1e484c] uppercase tracking-wider flex items-center space-x-2">
+          <Sliders className="w-4 h-4 text-[#71C9CE]" />
           <span>Video Metadata & Release Options</span>
         </h4>
 
@@ -107,7 +107,7 @@ export default function JobScheduler({ userId, onJobScheduled }: JobSchedulerPro
               placeholder="e.g. 4K Ultra HD Cyberpunk Cinematic Showcase"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full px-4 py-3 rounded-2xl bg-white border border-slate-200 text-slate-900 text-sm focus:outline-none focus:border-emerald-500 shadow-sm transition-colors"
+              className="w-full px-4 py-3 rounded-2xl bg-white border border-[#A6E3E9] text-slate-900 text-sm focus:outline-none focus:border-[#71C9CE] focus:ring-2 focus:ring-[#71C9CE]/20 shadow-sm transition-colors"
             />
           </div>
 
@@ -119,7 +119,7 @@ export default function JobScheduler({ userId, onJobScheduled }: JobSchedulerPro
                 placeholder="e.g. dQw4w9WgXcQ (Links Short to Long video)"
                 value={relatedVideoId}
                 onChange={(e) => setRelatedVideoId(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 rounded-2xl bg-white border border-slate-200 text-slate-900 text-sm focus:outline-none focus:border-emerald-500 font-mono shadow-sm transition-colors"
+                className="w-full pl-10 pr-4 py-3 rounded-2xl bg-white border border-[#A6E3E9] text-slate-900 text-sm focus:outline-none focus:border-[#71C9CE] focus:ring-2 focus:ring-[#71C9CE]/20 font-mono shadow-sm transition-colors"
               />
               <Link2 className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
             </div>
@@ -133,12 +133,12 @@ export default function JobScheduler({ userId, onJobScheduled }: JobSchedulerPro
             placeholder="Full video description for YouTube release..."
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            className="w-full px-4 py-3 rounded-2xl bg-white border border-slate-200 text-slate-900 text-sm focus:outline-none focus:border-emerald-500 shadow-sm transition-colors"
+            className="w-full px-4 py-3 rounded-2xl bg-white border border-[#A6E3E9] text-slate-900 text-sm focus:outline-none focus:border-[#71C9CE] focus:ring-2 focus:ring-[#71C9CE]/20 shadow-sm transition-colors"
           />
         </div>
 
         {/* AI & Quality Controls */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-5 rounded-2xl bg-slate-50/80 border border-slate-200">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-5 rounded-2xl bg-[#E3FDFD]/40 border border-[#A6E3E9]">
           <div className="flex items-center justify-between">
             <div>
               <span className="text-sm font-bold text-slate-900 block">AI Quality Enhancer</span>
@@ -151,7 +151,7 @@ export default function JobScheduler({ userId, onJobScheduled }: JobSchedulerPro
                 onChange={(e) => setAiEnhancerEnabled(e.target.checked)}
                 className="sr-only peer"
               />
-              <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gradient-to-r peer-checked:from-emerald-500 peer-checked:to-cyan-500"></div>
+              <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#71C9CE]"></div>
             </label>
           </div>
 
@@ -163,8 +163,8 @@ export default function JobScheduler({ userId, onJobScheduled }: JobSchedulerPro
                 onClick={() => setTargetResolution('1080p')}
                 className={`flex-1 py-2.5 rounded-xl text-xs font-bold border transition-colors ${
                   targetResolution === '1080p'
-                    ? 'bg-emerald-50 text-emerald-700 border-emerald-300'
-                    : 'bg-white text-slate-600 border-slate-200 hover:text-slate-900'
+                    ? 'bg-[#CBF1F5] text-[#1e484c] border-[#71C9CE]'
+                    : 'bg-white text-slate-600 border-[#A6E3E9] hover:text-slate-900'
                 }`}
               >
                 1080p Full HD
@@ -174,8 +174,8 @@ export default function JobScheduler({ userId, onJobScheduled }: JobSchedulerPro
                 onClick={() => setTargetResolution('4K')}
                 className={`flex-1 py-2.5 rounded-xl text-xs font-bold border transition-colors ${
                   targetResolution === '4K'
-                    ? 'bg-cyan-50 text-cyan-700 border-cyan-300'
-                    : 'bg-white text-slate-600 border-slate-200 hover:text-slate-900'
+                    ? 'bg-[#CBF1F5] text-[#1e484c] border-[#71C9CE]'
+                    : 'bg-white text-slate-600 border-[#A6E3E9] hover:text-slate-900'
                 }`}
               >
                 4K Ultra HD (3840x2160)
@@ -192,7 +192,7 @@ export default function JobScheduler({ userId, onJobScheduled }: JobSchedulerPro
               required
               value={scheduledTime}
               onChange={(e) => setScheduledTime(e.target.value)}
-              className="w-full px-4 py-3 rounded-2xl bg-white border border-slate-200 text-slate-900 text-sm focus:outline-none focus:border-emerald-500 shadow-sm transition-colors"
+              className="w-full px-4 py-3 rounded-2xl bg-white border border-[#A6E3E9] text-slate-900 text-sm focus:outline-none focus:border-[#71C9CE] focus:ring-2 focus:ring-[#71C9CE]/20 shadow-sm transition-colors"
             />
           </div>
 
@@ -209,8 +209,8 @@ export default function JobScheduler({ userId, onJobScheduled }: JobSchedulerPro
         </div>
 
         {successMsg && (
-          <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm flex items-center space-x-2">
-            <CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0" />
+          <div className="p-4 rounded-2xl bg-[#CBF1F5] border border-[#A6E3E9] text-[#1e484c] text-sm flex items-center space-x-2">
+            <CheckCircle2 className="w-5 h-5 text-[#71C9CE] flex-shrink-0" />
             <span>{successMsg}</span>
           </div>
         )}
@@ -224,7 +224,7 @@ export default function JobScheduler({ userId, onJobScheduled }: JobSchedulerPro
         <button
           type="submit"
           disabled={loading || !rawVideoUrl}
-          className="w-full py-4 px-6 rounded-2xl font-bold text-base text-white bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 hover:from-emerald-600 hover:to-cyan-600 shadow-lg shadow-emerald-500/25 hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-center space-x-3 disabled:opacity-50"
+          className="w-full py-4 px-6 rounded-2xl font-bold text-base text-white bg-[#71C9CE] hover:bg-[#5ab5bb] shadow-lg shadow-[#71C9CE]/25 hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-center space-x-3 disabled:opacity-50"
         >
           {loading ? (
             <>

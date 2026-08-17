@@ -47,8 +47,8 @@ export default function YoutubeAuthCard({
         </div>
 
         {isYoutubeConnected ? (
-          <span className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-bold">
-            <CheckCircle className="w-3.5 h-3.5" />
+          <span className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-[#CBF1F5] text-[#1e484c] border border-[#A6E3E9] text-xs font-bold">
+            <CheckCircle className="w-3.5 h-3.5 text-[#71C9CE]" />
             <span>Connected</span>
           </span>
         ) : (
@@ -70,12 +70,12 @@ export default function YoutubeAuthCard({
           </p>
         </div>
       ) : (
-        <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs space-y-1">
-          <div className="flex items-center space-x-2 font-bold text-emerald-950">
-            <Tv className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+        <div className="p-4 rounded-xl bg-[#E3FDFD] border border-[#A6E3E9] text-[#1e484c] text-xs space-y-1">
+          <div className="flex items-center space-x-2 font-bold text-[#1e484c]">
+            <Tv className="w-4 h-4 text-[#71C9CE] flex-shrink-0" />
             <span>Channel: {channelTitle || 'Connected Channel'}</span>
           </div>
-          {channelId && <p className="text-[11px] text-emerald-700 font-mono">ID: {channelId}</p>}
+          {channelId && <p className="text-[11px] text-[#5ab5bb] font-mono">ID: {channelId}</p>}
         </div>
       )}
 

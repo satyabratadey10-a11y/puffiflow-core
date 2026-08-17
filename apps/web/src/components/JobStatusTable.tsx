@@ -22,22 +22,22 @@ export default function JobStatusTable({ jobs, onRefresh, loading }: JobStatusTa
         );
       case 'PROCESSING':
         return (
-          <span className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-cyan-50 text-cyan-700 border border-cyan-200 text-xs font-bold animate-pulse">
-            <Loader2 className="w-3.5 h-3.5 text-cyan-600 animate-spin" />
+          <span className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-[#CBF1F5] text-[#1e484c] border border-[#A6E3E9] text-xs font-bold animate-pulse">
+            <Loader2 className="w-3.5 h-3.5 text-[#71C9CE] animate-spin" />
             <span>GPU UPSCALING</span>
           </span>
         );
       case 'COMPLETED':
         return (
-          <span className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-bold">
-            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+          <span className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-[#E3FDFD] text-[#1e484c] border border-[#71C9CE] text-xs font-bold">
+            <CheckCircle2 className="w-3.5 h-3.5 text-[#71C9CE]" />
             <span>4K READY</span>
           </span>
         );
       case 'PUBLISHED':
         return (
-          <span className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-300 text-xs font-extrabold shadow-sm">
-            <PlayCircle className="w-3.5 h-3.5 text-emerald-600" />
+          <span className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-[#71C9CE] text-white text-xs font-extrabold shadow-sm">
+            <PlayCircle className="w-3.5 h-3.5 text-white" />
             <span>PUBLISHED TO YT</span>
           </span>
         );
@@ -64,15 +64,15 @@ export default function JobStatusTable({ jobs, onRefresh, loading }: JobStatusTa
         <button
           onClick={onRefresh}
           disabled={loading}
-          className="px-4 py-2 rounded-2xl font-bold text-xs text-slate-800 bg-slate-100 hover:bg-slate-200 border border-slate-200/80 transition-all flex items-center space-x-2 disabled:opacity-50"
+          className="px-4 py-2 rounded-2xl font-bold text-xs text-[#1e484c] bg-[#CBF1F5] hover:bg-[#A6E3E9] border border-[#A6E3E9] transition-all flex items-center space-x-2 disabled:opacity-50"
         >
-          <RefreshCw className={`w-3.5 h-3.5 text-emerald-600 ${loading ? 'animate-spin' : ''}`} />
+          <RefreshCw className={`w-3.5 h-3.5 text-[#71C9CE] ${loading ? 'animate-spin' : ''}`} />
           <span>Refresh Queue</span>
         </button>
       </div>
 
       {jobs.length === 0 ? (
-        <div className="p-12 text-center rounded-2xl bg-slate-50/70 border border-slate-200/80 text-slate-500 text-sm">
+        <div className="p-12 text-center rounded-2xl bg-[#E3FDFD]/30 border border-[#A6E3E9]/60 text-slate-600 text-sm">
           No video upscaling jobs scheduled yet. Upload a video above to begin automated 4K processing.
         </div>
       ) : (
@@ -89,7 +89,7 @@ export default function JobStatusTable({ jobs, onRefresh, loading }: JobStatusTa
             </thead>
             <tbody>
               {jobs.map((job) => (
-                <tr key={job.id} className="bg-white hover:bg-slate-50/80 transition-colors border border-slate-200/80 rounded-2xl shadow-sm">
+                <tr key={job.id} className="bg-white hover:bg-[#E3FDFD]/20 transition-colors border border-[#A6E3E9]/60 rounded-2xl shadow-sm">
                   <td className="py-4 px-4 rounded-l-2xl">
                     <div className="font-bold text-slate-900">{job.title}</div>
                     {job.description && (
@@ -97,7 +97,7 @@ export default function JobStatusTable({ jobs, onRefresh, loading }: JobStatusTa
                     )}
                   </td>
                   <td className="py-4 px-4 font-mono text-xs font-bold text-slate-700">
-                    <span className="px-2.5 py-1 rounded-xl bg-slate-100 border border-slate-200">
+                    <span className="px-2.5 py-1 rounded-xl bg-[#CBF1F5] text-[#1e484c] border border-[#A6E3E9]">
                       {job.target_resolution || '4K'}
                     </span>
                   </td>
@@ -111,7 +111,7 @@ export default function JobStatusTable({ jobs, onRefresh, loading }: JobStatusTa
                         href={job.processed_4k_url}
                         target="_blank"
                         rel="noreferrer"
-                        className="inline-flex items-center space-x-1 text-xs font-bold text-emerald-600 hover:text-emerald-700 hover:underline"
+                        className="inline-flex items-center space-x-1 text-xs font-bold text-[#71C9CE] hover:text-[#5ab5bb] hover:underline"
                       >
                         <span>View 4K Asset</span>
                         <ExternalLink className="w-3.5 h-3.5" />

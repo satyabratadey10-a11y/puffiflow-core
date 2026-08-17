@@ -36,11 +36,11 @@ const features = [
 
 export default function Features() {
   return (
-    <section id="features" className="py-24 px-6 bg-slate-50/50 relative z-10">
+    <section id="features" className="py-24 px-6 bg-[#E3FDFD]/20 relative z-10">
       <div className="max-w-7xl mx-auto space-y-16">
         <div className="text-center max-w-3xl mx-auto space-y-4">
-          <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-bold uppercase tracking-wider">
-            <Zap className="w-4 h-4 text-emerald-600" />
+          <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-[#CBF1F5] text-[#1e484c] border border-[#A6E3E9] text-xs font-bold uppercase tracking-wider">
+            <Zap className="w-4 h-4 text-[#71C9CE]" />
             <span>High-Energy System Architecture</span>
           </div>
           <h2 className="text-3xl md:text-5xl font-extrabold text-slate-900 tracking-tight">
@@ -60,8 +60,8 @@ export default function Features() {
                 className="p-8 rounded-2xl liquid-glass-card hover:-translate-y-1 transition-all duration-200 flex flex-col justify-between"
               >
                 <div>
-                  <div className="p-3.5 rounded-2xl bg-gradient-to-tr from-emerald-500 to-cyan-500 text-white w-fit mb-5 shadow-md shadow-emerald-500/20">
-                    <IconComponent className="w-6 h-6" />
+                  <div className="p-3.5 rounded-2xl bg-gradient-to-tr from-[#71C9CE] to-[#A6E3E9] text-white w-fit mb-5 shadow-md shadow-[#71C9CE]/25">
+                    <IconComponent className="w-6 h-6 text-white" />
                   </div>
                   <h3 className="text-xl font-bold text-slate-900 mb-2">{feat.title}</h3>
                   <p className="text-slate-600 text-sm leading-relaxed">{feat.description}</p>

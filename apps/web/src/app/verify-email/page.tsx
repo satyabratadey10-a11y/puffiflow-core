@@ -124,12 +124,12 @@ function VerifyEmailForm() {
   return (
     <div className="min-h-[85vh] flex items-center justify-center px-6 py-12 bg-white relative">
       {/* Slow-floating ambient background gradient sphere */}
-      <div className="absolute w-[500px] h-[500px] bg-gradient-to-tr from-emerald-200/30 via-teal-200/20 to-cyan-200/30 rounded-full blur-[120px] pointer-events-none animate-blob" />
+      <div className="absolute w-[500px] h-[500px] bg-gradient-to-tr from-[#E3FDFD] via-[#CBF1F5] to-[#A6E3E9] rounded-full blur-[120px] pointer-events-none animate-blob" />
 
       <div className="w-full max-w-md p-8 rounded-2xl liquid-glass-card shadow-2xl space-y-6 relative z-10">
         <div className="text-center space-y-2">
-          <div className="inline-flex items-center space-x-2 px-3.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-bold uppercase tracking-wider mb-2">
-            <KeyRound className="w-3.5 h-3.5 text-emerald-600" />
+          <div className="inline-flex items-center space-x-2 px-3.5 py-1 rounded-full bg-[#CBF1F5] text-[#1e484c] border border-[#A6E3E9] text-xs font-bold uppercase tracking-wider mb-2">
+            <KeyRound className="w-3.5 h-3.5 text-[#71C9CE]" />
             <span>Verify Email</span>
           </div>
           <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900">Enter 6-Digit Code</h1>
@@ -152,7 +152,7 @@ function VerifyEmailForm() {
                 value={digit}
                 onChange={(e) => handleOtpChange(idx, e.target.value)}
                 onKeyDown={(e) => handleKeyDown(idx, e)}
-                className="w-12 h-14 text-center text-xl font-mono font-bold rounded-2xl bg-white border border-slate-200 text-slate-900 focus:outline-none focus:border-emerald-500 shadow-sm transition-colors"
+                className="w-12 h-14 text-center text-xl font-mono font-bold rounded-2xl bg-white border border-[#A6E3E9] text-slate-900 focus:outline-none focus:border-[#71C9CE] focus:ring-2 focus:ring-[#71C9CE]/20 shadow-sm transition-colors"
               />
             ))}
           </div>
@@ -160,7 +160,7 @@ function VerifyEmailForm() {
           <button
             type="submit"
             disabled={loading || otp.join('').length !== 6}
-            className="w-full py-3.5 px-4 rounded-2xl font-bold text-sm text-white bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 hover:from-emerald-600 hover:to-cyan-600 shadow-lg shadow-emerald-500/25 hover:-translate-y-0.5 transition-all flex items-center justify-center space-x-2 disabled:opacity-50"
+            className="w-full py-3.5 px-4 rounded-2xl font-bold text-sm text-white bg-[#71C9CE] hover:bg-[#5ab5bb] shadow-lg shadow-[#71C9CE]/25 hover:-translate-y-0.5 transition-all flex items-center justify-center space-x-2 disabled:opacity-50"
           >
             {loading ? (
               <Loader2 className="w-4 h-4 animate-spin" />
@@ -178,7 +178,7 @@ function VerifyEmailForm() {
             type="button"
             onClick={handleResendCode}
             disabled={resendCooldown > 0 || resending}
-            className="inline-flex items-center space-x-2 text-xs font-bold text-slate-600 hover:text-emerald-600 transition-colors disabled:opacity-50"
+            className="inline-flex items-center space-x-2 text-xs font-bold text-slate-600 hover:text-[#5ab5bb] transition-colors disabled:opacity-50"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${resending ? 'animate-spin' : ''}`} />
             <span>
@@ -197,7 +197,7 @@ export default function VerifyEmailPage() {
   return (
     <Suspense fallback={
       <div className="min-h-[85vh] flex items-center justify-center text-slate-500">
-        <Loader2 className="w-6 h-6 animate-spin text-emerald-600 mr-2" />
+        <Loader2 className="w-6 h-6 animate-spin text-[#71C9CE] mr-2" />
         <span className="font-semibold text-sm">Loading verification form...</span>
       </div>
     }>

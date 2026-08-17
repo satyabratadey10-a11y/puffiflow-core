@@ -101,7 +101,6 @@ function MultiCloudStorageSetupForm() {
 
   useEffect(() => {
     async function checkCurrentStatus() {
-      setStatusLoading(true);
       try {
         const st = await getStorageStatus(userId);
         if (st.storageSetupCompleted) {
@@ -156,14 +155,14 @@ function MultiCloudStorageSetupForm() {
   return (
     <div className="min-h-screen bg-white relative py-10 px-6">
       {/* Slow-floating ambient background gradient sphere */}
-      <div className="absolute top-10 left-10 w-[500px] h-[500px] bg-gradient-to-tr from-emerald-200/30 via-teal-200/20 to-cyan-200/30 blur-[130px] rounded-full pointer-events-none animate-blob" />
+      <div className="absolute top-10 left-10 w-[500px] h-[500px] bg-gradient-to-tr from-[#E3FDFD] via-[#CBF1F5] to-[#A6E3E9] blur-[130px] rounded-full pointer-events-none animate-blob" />
 
       <div className="max-w-5xl mx-auto space-y-8 relative z-10">
         {/* Top Navigation */}
         <div className="flex items-center justify-between">
           <Link
             href={`/dashboard?userId=${userId}`}
-            className="inline-flex items-center space-x-2 text-sm font-bold text-slate-600 hover:text-emerald-600 transition-colors"
+            className="inline-flex items-center space-x-2 text-sm font-bold text-slate-700 hover:text-[#5ab5bb] transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>Back to Dashboard</span>
@@ -173,7 +172,7 @@ function MultiCloudStorageSetupForm() {
             href="https://supabase.com/dashboard"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center space-x-2 px-4 py-2 rounded-2xl bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 text-xs font-bold transition-all shadow-sm"
+            className="inline-flex items-center space-x-2 px-4 py-2 rounded-2xl bg-[#CBF1F5] text-[#1e484c] hover:bg-[#A6E3E9] border border-[#A6E3E9] text-xs font-bold transition-all shadow-sm"
           >
             <span>Supabase Portal</span>
             <ExternalLink className="w-3.5 h-3.5" />
@@ -183,8 +182,8 @@ function MultiCloudStorageSetupForm() {
         {/* Main Header Banner */}
         <div className="p-8 rounded-2xl liquid-glass-card shadow-xl relative overflow-hidden">
           <div className="flex items-start space-x-4">
-            <div className="p-3 rounded-2xl bg-emerald-50 text-emerald-600 border border-emerald-200">
-              <Globe className="w-8 h-8" />
+            <div className="p-3 rounded-2xl bg-[#CBF1F5] text-[#1e484c] border border-[#A6E3E9]">
+              <Globe className="w-8 h-8 text-[#71C9CE]" />
             </div>
             <div>
               <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900">Universal BYOS Multi-Cloud Architecture</h1>
@@ -195,16 +194,16 @@ function MultiCloudStorageSetupForm() {
           </div>
 
           {setupCompleted && (
-            <div className="mt-6 p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-sm flex items-center justify-between">
+            <div className="mt-6 p-4 rounded-2xl bg-[#CBF1F5] border border-[#A6E3E9] text-[#1e484c] text-sm flex items-center justify-between">
               <div className="flex items-center space-x-2">
-                <CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0" />
+                <CheckCircle2 className="w-5 h-5 text-[#71C9CE] flex-shrink-0" />
                 <span className="font-bold">
                   Active Provider: {PROVIDER_OPTIONS.find((p) => p.id === activeProvider)?.name || activeProvider} (Bucket: {activeBucket || 'puffiflow-videos'})
                 </span>
               </div>
               <Link
                 href={`/dashboard?userId=${userId}`}
-                className="px-4 py-2 rounded-xl bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-700 transition-colors shadow-sm"
+                className="px-4 py-2 rounded-xl bg-[#71C9CE] hover:bg-[#5ab5bb] text-white text-xs font-bold transition-colors shadow-sm"
               >
                 Go to Dashboard
               </Link>
@@ -230,15 +229,15 @@ function MultiCloudStorageSetupForm() {
                   }}
                   className={`p-5 rounded-2xl text-left transition-all border flex flex-col justify-between space-y-3 ${
                     isSelected
-                      ? 'bg-white border-emerald-500 shadow-xl shadow-emerald-500/10 ring-2 ring-emerald-500/50'
-                      : 'bg-white/80 border-slate-200 hover:bg-slate-50 hover:border-slate-300'
+                      ? 'bg-white border-[#71C9CE] shadow-xl shadow-[#71C9CE]/15 ring-2 ring-[#71C9CE]/50'
+                      : 'bg-white/80 border-[#A6E3E9]/60 hover:bg-[#CBF1F5]/30 hover:border-[#A6E3E9]'
                   }`}
                 >
                   <div className="flex items-center justify-between w-full">
-                    <div className={`p-2.5 rounded-xl ${isSelected ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-100 text-slate-500'}`}>
-                      <IconComponent className="w-5 h-5" />
+                    <div className={`p-2.5 rounded-xl ${isSelected ? 'bg-[#CBF1F5] text-[#1e484c]' : 'bg-slate-100 text-slate-500'}`}>
+                      <IconComponent className={`w-5 h-5 ${isSelected ? 'text-[#71C9CE]' : ''}`} />
                     </div>
-                    <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-slate-100 border border-slate-200 text-slate-700">
+                    <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-[#E3FDFD] border border-[#A6E3E9] text-[#1e484c]">
                       {prov.badge}
                     </span>
                   </div>
@@ -255,7 +254,7 @@ function MultiCloudStorageSetupForm() {
         {/* Configuration Form Box */}
         <div className="p-8 rounded-2xl liquid-glass-card shadow-xl space-y-6">
           <h2 className="text-xl font-extrabold text-slate-900 flex items-center space-x-2">
-            <Key className="w-5 h-5 text-emerald-600" />
+            <Key className="w-5 h-5 text-[#71C9CE]" />
             <span>Configure {PROVIDER_OPTIONS.find((p) => p.id === selectedProvider)?.name}</span>
           </h2>
 
@@ -263,12 +262,12 @@ function MultiCloudStorageSetupForm() {
           <form onSubmit={handleSaveStorage} className="space-y-6">
             {/* PROVIDER: SUPABASE DEFAULT */}
             {selectedProvider === 'supabase_default' && (
-              <div className="p-6 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
+              <div className="p-6 rounded-2xl bg-[#E3FDFD]/40 border border-[#A6E3E9] space-y-3">
                 <p className="text-slate-700 text-sm leading-relaxed">
                   Uses your main Supabase backend project storage bucket (<code>puffiflow-videos</code>). No additional API keys or credit card required.
                 </p>
-                <div className="text-xs text-emerald-700 font-bold flex items-center space-x-2">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                <div className="text-xs text-[#1e484c] font-bold flex items-center space-x-2">
+                  <CheckCircle2 className="w-4 h-4 text-[#71C9CE]" />
                   <span>100% Free Default Stack ($0 Budget)</span>
                 </div>
               </div>
@@ -285,7 +284,7 @@ function MultiCloudStorageSetupForm() {
                     placeholder="https://xyzcompany.supabase.co"
                     value={supabaseUrl}
                     onChange={(e) => setSupabaseUrl(e.target.value)}
-                    className="w-full px-4 py-3 rounded-2xl bg-white border border-slate-200 text-slate-900 text-sm focus:outline-none focus:border-emerald-500 font-mono shadow-sm transition-colors"
+                    className="w-full px-4 py-3 rounded-2xl bg-white border border-[#A6E3E9] text-slate-900 text-sm focus:outline-none focus:border-[#71C9CE] focus:ring-2 focus:ring-[#71C9CE]/20 font-mono shadow-sm transition-colors"
                   />
                 </div>
 
@@ -297,7 +296,7 @@ function MultiCloudStorageSetupForm() {
                     placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6..."
                     value={supabaseServiceRoleKey}
                     onChange={(e) => setSupabaseServiceRoleKey(e.target.value)}
-                    className="w-full px-4 py-3 rounded-2xl bg-white border border-slate-200 text-slate-900 text-sm focus:outline-none focus:border-emerald-500 font-mono shadow-sm transition-colors"
+                    className="w-full px-4 py-3 rounded-2xl bg-white border border-[#A6E3E9] text-slate-900 text-sm focus:outline-none focus:border-[#71C9CE] focus:ring-2 focus:ring-[#71C9CE]/20 font-mono shadow-sm transition-colors"
                   />
                 </div>
               </div>
@@ -314,7 +313,7 @@ function MultiCloudStorageSetupForm() {
                     placeholder="e.g. a1b2c3d4e5f67890abcdef1234567890"
                     value={accountId}
                     onChange={(e) => setAccountId(e.target.value)}
-                    className="w-full px-4 py-3 rounded-2xl bg-white border border-slate-200 text-slate-900 text-sm focus:outline-none focus:border-emerald-500 font-mono shadow-sm transition-colors"
+                    className="w-full px-4 py-3 rounded-2xl bg-white border border-[#A6E3E9] text-slate-900 text-sm focus:outline-none focus:border-[#71C9CE] focus:ring-2 focus:ring-[#71C9CE]/20 font-mono shadow-sm transition-colors"
                   />
                 </div>
 
@@ -326,7 +325,7 @@ function MultiCloudStorageSetupForm() {
                     placeholder="e.g. 8493021abcf..."
                     value={accessKeyId}
                     onChange={(e) => setAccessKeyId(e.target.value)}
-                    className="w-full px-4 py-3 rounded-2xl bg-white border border-slate-200 text-slate-900 text-sm focus:outline-none focus:border-emerald-500 font-mono shadow-sm transition-colors"
+                    className="w-full px-4 py-3 rounded-2xl bg-white border border-[#A6E3E9] text-slate-900 text-sm focus:outline-none focus:border-[#71C9CE] focus:ring-2 focus:ring-[#71C9CE]/20 font-mono shadow-sm transition-colors"
                   />
                 </div>
 
@@ -338,7 +337,7 @@ function MultiCloudStorageSetupForm() {
                     placeholder="••••••••••••••••••••••••••••••••"
                     value={secretAccessKey}
                     onChange={(e) => setSecretAccessKey(e.target.value)}
-                    className="w-full px-4 py-3 rounded-2xl bg-white border border-slate-200 text-slate-900 text-sm focus:outline-none focus:border-emerald-500 font-mono shadow-sm transition-colors"
+                    className="w-full px-4 py-3 rounded-2xl bg-white border border-[#A6E3E9] text-slate-900 text-sm focus:outline-none focus:border-[#71C9CE] focus:ring-2 focus:ring-[#71C9CE]/20 font-mono shadow-sm transition-colors"
                   />
                 </div>
 
@@ -350,7 +349,7 @@ function MultiCloudStorageSetupForm() {
                     placeholder="puffiflow-videos"
                     value={bucketName}
                     onChange={(e) => setBucketName(e.target.value)}
-                    className="w-full px-4 py-3 rounded-2xl bg-white border border-slate-200 text-slate-900 text-sm focus:outline-none focus:border-emerald-500 shadow-sm transition-colors"
+                    className="w-full px-4 py-3 rounded-2xl bg-white border border-[#A6E3E9] text-slate-900 text-sm focus:outline-none focus:border-[#71C9CE] focus:ring-2 focus:ring-[#71C9CE]/20 shadow-sm transition-colors"
                   />
                 </div>
               </div>
@@ -367,7 +366,7 @@ function MultiCloudStorageSetupForm() {
                     placeholder="us-east-1"
                     value={s3Region}
                     onChange={(e) => setS3Region(e.target.value)}
-                    className="w-full px-4 py-3 rounded-2xl bg-white border border-slate-200 text-slate-900 text-sm focus:outline-none focus:border-emerald-500 shadow-sm transition-colors"
+                    className="w-full px-4 py-3 rounded-2xl bg-white border border-[#A6E3E9] text-slate-900 text-sm focus:outline-none focus:border-[#71C9CE] focus:ring-2 focus:ring-[#71C9CE]/20 shadow-sm transition-colors"
                   />
                 </div>
 
@@ -379,7 +378,7 @@ function MultiCloudStorageSetupForm() {
                     placeholder="my-s3-video-bucket"
                     value={bucketName}
                     onChange={(e) => setBucketName(e.target.value)}
-                    className="w-full px-4 py-3 rounded-2xl bg-white border border-slate-200 text-slate-900 text-sm focus:outline-none focus:border-emerald-500 shadow-sm transition-colors"
+                    className="w-full px-4 py-3 rounded-2xl bg-white border border-[#A6E3E9] text-slate-900 text-sm focus:outline-none focus:border-[#71C9CE] focus:ring-2 focus:ring-[#71C9CE]/20 shadow-sm transition-colors"
                   />
                 </div>
 
@@ -391,7 +390,7 @@ function MultiCloudStorageSetupForm() {
                     placeholder="AKIAIOSFODNN7EXAMPLE"
                     value={accessKeyId}
                     onChange={(e) => setAccessKeyId(e.target.value)}
-                    className="w-full px-4 py-3 rounded-2xl bg-white border border-slate-200 text-slate-900 text-sm focus:outline-none focus:border-emerald-500 font-mono shadow-sm transition-colors"
+                    className="w-full px-4 py-3 rounded-2xl bg-white border border-[#A6E3E9] text-slate-900 text-sm focus:outline-none focus:border-[#71C9CE] focus:ring-2 focus:ring-[#71C9CE]/20 font-mono shadow-sm transition-colors"
                   />
                 </div>
 
@@ -403,7 +402,7 @@ function MultiCloudStorageSetupForm() {
                     placeholder="wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
                     value={secretAccessKey}
                     onChange={(e) => setSecretAccessKey(e.target.value)}
-                    className="w-full px-4 py-3 rounded-2xl bg-white border border-slate-200 text-slate-900 text-sm focus:outline-none focus:border-emerald-500 font-mono shadow-sm transition-colors"
+                    className="w-full px-4 py-3 rounded-2xl bg-white border border-[#A6E3E9] text-slate-900 text-sm focus:outline-none focus:border-[#71C9CE] focus:ring-2 focus:ring-[#71C9CE]/20 font-mono shadow-sm transition-colors"
                   />
                 </div>
               </div>
@@ -421,7 +420,7 @@ function MultiCloudStorageSetupForm() {
                     placeholder={selectedProvider === 'backblaze_b2' ? 'https://s3.us-west-004.backblazeb2.com' : 'https://s3.wasabisys.com'}
                     value={s3Endpoint}
                     onChange={(e) => setS3Endpoint(e.target.value)}
-                    className="w-full px-4 py-3 rounded-2xl bg-white border border-slate-200 text-slate-900 text-sm focus:outline-none focus:border-emerald-500 font-mono shadow-sm transition-colors"
+                    className="w-full px-4 py-3 rounded-2xl bg-white border border-[#A6E3E9] text-slate-900 text-sm focus:outline-none focus:border-[#71C9CE] focus:ring-2 focus:ring-[#71C9CE]/20 font-mono shadow-sm transition-colors"
                   />
                 </div>
 
@@ -433,7 +432,7 @@ function MultiCloudStorageSetupForm() {
                     placeholder={selectedProvider === 'backblaze_b2' ? 'us-west-004' : 'us-east-1'}
                     value={s3Region}
                     onChange={(e) => setS3Region(e.target.value)}
-                    className="w-full px-4 py-3 rounded-2xl bg-white border border-slate-200 text-slate-900 text-sm focus:outline-none focus:border-emerald-500 shadow-sm transition-colors"
+                    className="w-full px-4 py-3 rounded-2xl bg-white border border-[#A6E3E9] text-slate-900 text-sm focus:outline-none focus:border-[#71C9CE] focus:ring-2 focus:ring-[#71C9CE]/20 shadow-sm transition-colors"
                   />
                 </div>
 
@@ -445,7 +444,7 @@ function MultiCloudStorageSetupForm() {
                     placeholder="puffiflow-videos"
                     value={bucketName}
                     onChange={(e) => setBucketName(e.target.value)}
-                    className="w-full px-4 py-3 rounded-2xl bg-white border border-slate-200 text-slate-900 text-sm focus:outline-none focus:border-emerald-500 shadow-sm transition-colors"
+                    className="w-full px-4 py-3 rounded-2xl bg-white border border-[#A6E3E9] text-slate-900 text-sm focus:outline-none focus:border-[#71C9CE] focus:ring-2 focus:ring-[#71C9CE]/20 shadow-sm transition-colors"
                   />
                 </div>
 
@@ -457,7 +456,7 @@ function MultiCloudStorageSetupForm() {
                     placeholder="Access Key ID"
                     value={accessKeyId}
                     onChange={(e) => setAccessKeyId(e.target.value)}
-                    className="w-full px-4 py-3 rounded-2xl bg-white border border-slate-200 text-slate-900 text-sm focus:outline-none focus:border-emerald-500 font-mono shadow-sm transition-colors"
+                    className="w-full px-4 py-3 rounded-2xl bg-white border border-[#A6E3E9] text-slate-900 text-sm focus:outline-none focus:border-[#71C9CE] focus:ring-2 focus:ring-[#71C9CE]/20 font-mono shadow-sm transition-colors"
                   />
                 </div>
 
@@ -469,7 +468,7 @@ function MultiCloudStorageSetupForm() {
                     placeholder="Secret Access Key"
                     value={secretAccessKey}
                     onChange={(e) => setSecretAccessKey(e.target.value)}
-                    className="w-full px-4 py-3 rounded-2xl bg-white border border-slate-200 text-slate-900 text-sm focus:outline-none focus:border-emerald-500 font-mono shadow-sm transition-colors"
+                    className="w-full px-4 py-3 rounded-2xl bg-white border border-[#A6E3E9] text-slate-900 text-sm focus:outline-none focus:border-[#71C9CE] focus:ring-2 focus:ring-[#71C9CE]/20 font-mono shadow-sm transition-colors"
                   />
                 </div>
               </div>
@@ -484,22 +483,22 @@ function MultiCloudStorageSetupForm() {
                   placeholder="e.g. https://cdn.mycompany.com or https://pub-xxx.r2.dev"
                   value={publicDomain}
                   onChange={(e) => setPublicDomain(e.target.value)}
-                  className="w-full px-4 py-3 rounded-2xl bg-white border border-slate-200 text-slate-900 text-sm focus:outline-none focus:border-emerald-500 shadow-sm transition-colors"
+                  className="w-full px-4 py-3 rounded-2xl bg-white border border-[#A6E3E9] text-slate-900 text-sm focus:outline-none focus:border-[#71C9CE] focus:ring-2 focus:ring-[#71C9CE]/20 shadow-sm transition-colors"
                 />
               </div>
             )}
 
             {/* Toast Messages */}
             {successMsg && (
-              <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm flex items-center space-x-2">
-                <CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0" />
+              <div className="p-4 rounded-2xl bg-[#CBF1F5] border border-[#A6E3E9] text-[#1e484c] text-sm flex items-center space-x-2">
+                <CheckCircle2 className="w-5 h-5 text-[#71C9CE] flex-shrink-0" />
                 <span>{successMsg}</span>
               </div>
             )}
 
             {errorMsg && (
               <div className="p-4 rounded-2xl bg-red-50 border border-red-200 text-red-800 text-sm flex items-center space-x-2">
-                <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
+                <AlertCircle className="w-4 h-4 text-red-600 flex-shrink-0" />
                 <span>{errorMsg}</span>
               </div>
             )}
@@ -507,7 +506,7 @@ function MultiCloudStorageSetupForm() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full sm:w-auto px-8 py-4 rounded-2xl font-bold text-sm text-white bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 hover:from-emerald-600 hover:to-cyan-600 shadow-lg shadow-emerald-500/25 hover:-translate-y-0.5 transition-all flex items-center justify-center space-x-2 disabled:opacity-50"
+              className="w-full sm:w-auto px-8 py-4 rounded-2xl font-bold text-sm text-white bg-[#71C9CE] hover:bg-[#5ab5bb] shadow-lg shadow-[#71C9CE]/25 hover:-translate-y-0.5 transition-all flex items-center justify-center space-x-2 disabled:opacity-50"
             >
               {loading ? (
                 <>
@@ -533,7 +532,7 @@ export default function StorageSetupPage() {
     <Suspense
       fallback={
         <div className="max-w-5xl mx-auto px-6 py-20 text-center text-slate-500 flex items-center justify-center">
-          <Loader2 className="w-6 h-6 animate-spin text-emerald-600 mr-2" />
+          <Loader2 className="w-6 h-6 animate-spin text-[#71C9CE] mr-2" />
           <span className="font-semibold text-sm">Loading multi-cloud storage console...</span>
         </div>
       }
