@@ -6,7 +6,7 @@ const IV_LENGTH = 12;
 
 export function encryptToken(text: string): string {
   if (!text) return '';
-  const key = Buffer.from(config.encryptionSecret.padEnd(64, '0').slice(0, 64), 'hex');
+  const key = crypto.createHash('sha256').update(String(config.encryptionSecret)).digest();
   const iv = crypto.randomBytes(IV_LENGTH);
   const cipher = crypto.createCipheriv(ALGORITHM, key, iv);
   
@@ -28,7 +28,7 @@ export function decryptToken(encryptedText: string): string {
     const authTag = Buffer.from(parts[1], 'hex');
     const encrypted = parts[2];
     
-    const key = Buffer.from(config.encryptionSecret.padEnd(64, '0').slice(0, 64), 'hex');
+    const key = crypto.createHash('sha256').update(String(config.encryptionSecret)).digest();
     const decipher = crypto.createDecipheriv(ALGORITHM, key, iv);
     decipher.setAuthTag(authTag);
     

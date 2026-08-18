@@ -47,7 +47,7 @@ app.use(
       if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
-        callback(null, true); // Permissive CORS for public APIs while setting origin headers
+        callback(new Error('Not allowed by CORS')); // Permissive CORS removed
       }
     },
     credentials: true,
