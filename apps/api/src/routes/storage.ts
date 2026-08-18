@@ -192,6 +192,7 @@ router.post('/storage/setup', requireAuth, async (req: AuthenticatedRequest, res
 // Legacy R2 verification route for backward compatibility
 router.post('/storage/verify', requireAuth, async (req: AuthenticatedRequest, res: Response) => {
   req.body.provider = 'cloudflare_r2';
+  req.url = '/storage/setup';
   return (router as any).handle(req, res, () => {});
 });
 

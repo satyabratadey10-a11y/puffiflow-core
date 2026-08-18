@@ -7,7 +7,7 @@ import {
   YOUTUBE_REDIRECT_URI
 } from '../services/youtube';
 import { findOrCreateUser, saveUserRefreshToken, getUserById, getSupabaseClient } from '../services/supabase';
-import { encryptToken } from '../services/crypto';
+import { encryptToken, decryptToken } from '../services/crypto';
 import { requireAuth, AuthenticatedRequest } from '../middleware/auth';
 
 const router = Router();
@@ -19,14 +19,14 @@ export { getOAuth2Client, YOUTUBE_REDIRECT_URI };
 // 1. Authorization Redirect (GET /api/auth/youtube)
 router.get(['/auth/youtube', '/'], (req: Request, res: Response) => {
   const userId = (req.query.userId as string) || (req.query.state as string) || 'default-user';
-  const url = generateYoutubeAuthUrl(userId);
+  const url = generateYoutubeAuthUrl(encryptToken(userId));
   return res.redirect(url);
 });
 
 // JSON endpoint for auth URL
 router.get('/auth/youtube/url', (req: Request, res: Response) => {
   const userId = (req.query.userId as string) || 'default-user';
-  const url = generateYoutubeAuthUrl(userId);
+  const url = generateYoutubeAuthUrl(encryptToken(userId));
   return res.status(200).json({ success: true, url });
 });
 
@@ -76,7 +76,14 @@ router.get(['/auth/youtube/callback', '/callback'], async (req: Request, res: Re
       encryptedRefreshToken = encryptToken(tokens.refresh_token);
     }
 
-    const targetUserId = state && state !== 'puffiflow' ? String(state) : null;
+    let targetUserId = null;
+    if (state && state !== 'puffiflow') {
+      try {
+        targetUserId = decryptToken(String(state));
+      } catch (err) {
+        console.error('[OAuth State Decrypt Error]:', err);
+      }
+    }
     if (targetUserId) {
       const updatePayload: any = {
         youtube_channel_id: channelId,
