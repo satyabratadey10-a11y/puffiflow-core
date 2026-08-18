@@ -88,7 +88,7 @@ export default function YoutubeAuthCard({
       <button
         onClick={handleConnectYoutube}
         disabled={loading}
-        className="w-full py-3.5 px-4 rounded-2xl font-bold text-sm text-white bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 transition-all shadow-md shadow-red-600/20 flex items-center justify-center space-x-2 disabled:opacity-50"
+        className="w-full py-3.5 px-4 rounded-2xl font-bold text-sm text-white bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 btn-interactive shadow-md shadow-red-600/20 flex items-center justify-center space-x-2 disabled:opacity-50"
       >
         {loading ? (
           <>

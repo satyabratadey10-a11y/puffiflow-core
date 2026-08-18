@@ -101,7 +101,7 @@ function DashboardContent() {
             </div>
             <Link
               href={`/dashboard/setup?userId=${userId}`}
-              className="px-5 py-2.5 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 text-white font-bold text-xs hover:from-amber-600 hover:to-amber-700 transition-all shadow-md shadow-amber-500/20 flex items-center space-x-2 flex-shrink-0"
+              className="px-5 py-2.5 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 text-white font-bold text-xs hover:from-amber-600 hover:to-amber-700 btn-interactive shadow-md shadow-amber-500/20 flex items-center space-x-2 flex-shrink-0"
             >
               <span>Configure Storage</span>
               <ArrowRight className="w-4 h-4" />
@@ -117,7 +117,7 @@ function DashboardContent() {
                 <Sparkles className="w-3.5 h-3.5 text-[#71C9CE]" />
                 <span>BYOS Active Workspace</span>
               </div>
-              <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900">4K Automation Dashboard</h1>
+              <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight md:tracking-[-0.02em]">4K Automation Dashboard</h1>
               <p className="text-slate-600 text-sm mt-1">
                 Upload raw videos directly to your object storage, trigger serverless Modal T4 GPU upscaling, and automate YouTube publishing.
               </p>
@@ -126,7 +126,7 @@ function DashboardContent() {
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
               <Link
                 href={`/dashboard/setup?userId=${userId}`}
-                className="px-4 py-2.5 rounded-2xl bg-white hover:bg-[#CBF1F5]/40 text-xs font-bold text-[#1e484c] border border-[#A6E3E9] shadow-sm flex items-center justify-center space-x-2 transition-colors"
+                className="px-4 py-2.5 rounded-2xl bg-white hover:bg-[#CBF1F5]/40 text-xs font-bold text-[#1e484c] border border-[#A6E3E9] shadow-sm flex items-center justify-center space-x-2 btn-interactive"
               >
                 <Cloud className="w-4 h-4 text-[#71C9CE]" />
                 <span>{bucketName ? `Bucket: ${bucketName}` : 'Storage Settings'}</span>

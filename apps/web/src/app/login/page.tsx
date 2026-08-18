@@ -101,7 +101,7 @@ export default function LoginPage() {
             <LogIn className="w-3.5 h-3.5 text-[#71C9CE]" />
             <span>Welcome Back</span>
           </div>
-          <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900">Log in to PuffiFlow</h1>
+          <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight md:tracking-[-0.02em]">Log in to PuffiFlow</h1>
           <p className="text-slate-600 text-xs md:text-sm">Manage 4K video upscaling & scheduled publishing</p>
         </div>
 
@@ -110,7 +110,7 @@ export default function LoginPage() {
           type="button"
           onClick={handleGoogleLogin}
           disabled={googleLoading}
-          className="w-full py-3 px-4 rounded-2xl bg-white hover:bg-slate-50 border border-[#A6E3E9] text-slate-800 font-bold text-sm transition-all flex items-center justify-center space-x-3 shadow-sm"
+          className="w-full py-3 px-4 rounded-2xl bg-white hover:bg-slate-50 border border-[#A6E3E9] text-slate-800 font-bold text-sm btn-interactive flex items-center justify-center space-x-3 shadow-sm"
         >
           {googleLoading ? (
             <Loader2 className="w-4 h-4 animate-spin text-slate-500" />
@@ -179,7 +179,7 @@ export default function LoginPage() {
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="text-slate-400 hover:text-slate-600 absolute right-3.5 top-3.5"
+                className="text-slate-400 hover:text-slate-600 absolute right-3.5 top-3.5 btn-interactive"
               >
                 {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
@@ -189,7 +189,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 px-4 rounded-2xl font-bold text-sm text-white bg-[#71C9CE] hover:bg-[#5ab5bb] shadow-lg shadow-[#71C9CE]/25 hover:-translate-y-0.5 transition-all flex items-center justify-center space-x-2 disabled:opacity-50 mt-4"
+            className="w-full py-3 px-4 rounded-2xl font-bold text-sm text-white bg-[#71C9CE] hover:bg-[#5ab5bb] shadow-lg shadow-[#71C9CE]/25 btn-interactive flex items-center justify-center space-x-2 disabled:opacity-50 mt-4"
           >
             {loading ? (
               <Loader2 className="w-4 h-4 animate-spin" />

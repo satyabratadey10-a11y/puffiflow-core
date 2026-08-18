@@ -46,7 +46,7 @@ export default function ForgotPasswordPage() {
       <div className="w-full max-w-md p-8 rounded-2xl liquid-glass-card shadow-2xl space-y-6 relative z-10">
         <Link
           href="/login"
-          className="inline-flex items-center space-x-2 text-xs font-bold text-slate-600 hover:text-[#5ab5bb] transition-colors"
+          className="inline-flex items-center space-x-2 text-xs font-bold text-slate-600 hover:text-[#5ab5bb] btn-interactive"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
           <span>Back to Login</span>
@@ -57,7 +57,7 @@ export default function ForgotPasswordPage() {
             <KeyRound className="w-3.5 h-3.5 text-[#71C9CE]" />
             <span>Password Recovery</span>
           </div>
-          <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900">Reset Password</h1>
+          <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight md:tracking-[-0.02em]">Reset Password</h1>
           <p className="text-slate-600 text-xs md:text-sm">Enter your email to receive a 6-digit recovery code</p>
         </div>
 
@@ -81,7 +81,7 @@ export default function ForgotPasswordPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 px-4 rounded-2xl font-bold text-sm text-white bg-[#71C9CE] hover:bg-[#5ab5bb] shadow-lg shadow-[#71C9CE]/25 hover:-translate-y-0.5 transition-all flex items-center justify-center space-x-2 disabled:opacity-50"
+            className="w-full py-3 px-4 rounded-2xl font-bold text-sm text-white bg-[#71C9CE] hover:bg-[#5ab5bb] shadow-lg shadow-[#71C9CE]/25 btn-interactive flex items-center justify-center space-x-2 disabled:opacity-50"
           >
             {loading ? (
               <Loader2 className="w-4 h-4 animate-spin" />

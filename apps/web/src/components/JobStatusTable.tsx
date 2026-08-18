@@ -64,7 +64,7 @@ export default function JobStatusTable({ jobs, onRefresh, loading }: JobStatusTa
         <button
           onClick={onRefresh}
           disabled={loading}
-          className="px-4 py-2 rounded-2xl font-bold text-xs text-[#1e484c] bg-[#CBF1F5] hover:bg-[#A6E3E9] border border-[#A6E3E9] transition-all flex items-center space-x-2 disabled:opacity-50"
+          className="px-4 py-2 rounded-2xl font-bold text-xs text-[#1e484c] bg-[#CBF1F5] hover:bg-[#A6E3E9] border border-[#A6E3E9] btn-interactive flex items-center space-x-2 disabled:opacity-50"
         >
           <RefreshCw className={`w-3.5 h-3.5 text-[#71C9CE] ${loading ? 'animate-spin' : ''}`} />
           <span>Refresh Queue</span>
@@ -90,8 +90,8 @@ export default function JobStatusTable({ jobs, onRefresh, loading }: JobStatusTa
             <tbody>
               {jobs.map((job) => (
                 <tr key={job.id} className="bg-white hover:bg-[#E3FDFD]/20 transition-colors border border-[#A6E3E9]/60 rounded-2xl shadow-sm">
-                  <td className="py-4 px-4 rounded-l-2xl">
-                    <div className="font-bold text-slate-900">{job.title}</div>
+                  <td className="py-4 px-4 rounded-l-2xl min-w-0">
+                    <div className="font-bold text-slate-900 break-words">{job.title}</div>
                     {job.description && (
                       <div className="text-xs text-slate-500 truncate max-w-xs">{job.description}</div>
                     )}
@@ -111,7 +111,7 @@ export default function JobStatusTable({ jobs, onRefresh, loading }: JobStatusTa
                         href={job.processed_4k_url}
                         target="_blank"
                         rel="noreferrer"
-                        className="inline-flex items-center space-x-1 text-xs font-bold text-[#71C9CE] hover:text-[#5ab5bb] hover:underline"
+                        className="inline-flex items-center space-x-1 text-xs font-bold text-[#71C9CE] hover:text-[#5ab5bb] hover:underline btn-interactive"
                       >
                         <span>View 4K Asset</span>
                         <ExternalLink className="w-3.5 h-3.5" />

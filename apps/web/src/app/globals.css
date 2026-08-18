@@ -15,6 +15,8 @@
     min-height: 100vh;
     margin: 0;
     overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 }
 
@@ -24,10 +26,10 @@
     transform: translate(0px, 0px) scale(1);
   }
   33% {
-    transform: translate(30px, -50px) scale(1.1);
+    transform: translate(30px, -50px) scale(1.08);
   }
   66% {
-    transform: translate(-20px, 20px) scale(0.9);
+    transform: translate(-20px, 20px) scale(0.92);
   }
   100% {
     transform: translate(0px, 0px) scale(1);
@@ -41,41 +43,76 @@
   }
   50% {
     opacity: 0.7;
-    transform: scale(1.05);
+    transform: scale(1.04);
   }
 }
 
 .animate-blob {
-  animation: blob 8s infinite ease-in-out;
+  animation: blob 9s infinite cubic-bezier(0.45, 0.05, 0.55, 0.95);
 }
 
 .animate-blob-delay-2000 {
-  animation: blob 8s infinite ease-in-out 2s;
+  animation: blob 9s infinite cubic-bezier(0.45, 0.05, 0.55, 0.95) 2s;
 }
 
 .animate-blob-delay-4000 {
-  animation: blob 8s infinite ease-in-out 4s;
+  animation: blob 9s infinite cubic-bezier(0.45, 0.05, 0.55, 0.95) 4s;
 }
 
 .animate-pulse-slow {
   animation: pulse-slow 6s infinite ease-in-out;
 }
 
-/* Aqua / Cyan Liquid Glassmorphism Utilities */
+/* Tactile Micro-Interactions & Button Physics */
+.btn-interactive {
+  transition: transform 140ms cubic-bezier(0.23, 1, 0.32, 1), background-color 140ms ease-out, box-shadow 140ms ease-out;
+  will-change: transform;
+}
+
+.btn-interactive:active {
+  transform: scale(0.97);
+}
+
+/* Aqua / Cyan Liquid Glassmorphism Utilities with Translucent Materials */
 .liquid-glass {
-  background: rgba(227, 253, 253, 0.45);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(166, 227, 233, 0.6);
-  box-shadow: 0 10px 30px -10px rgba(113, 201, 206, 0.15);
+  background: rgba(227, 253, 253, 0.55);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid rgba(166, 227, 233, 0.65);
+  box-shadow: 0 10px 30px -10px rgba(113, 201, 206, 0.15), inset 0 1px 1px 0 rgba(255, 255, 255, 0.8);
 }
 
 .liquid-glass-card {
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(166, 227, 233, 0.6);
-  box-shadow: 0 20px 40px -15px rgba(113, 201, 206, 0.12);
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(166, 227, 233, 0.65);
+  box-shadow: 0 20px 40px -15px rgba(113, 201, 206, 0.14), inset 0 1px 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+/* Accessibility: Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .animate-blob, .animate-blob-delay-2000, .animate-blob-delay-4000, .animate-pulse-slow {
+    animation: none !important;
+  }
+  .btn-interactive:active {
+    transform: none !important;
+  }
+}
+
+/* Accessibility: Reduced Transparency */
+@media (prefers-reduced-transparency: reduce) {
+  .liquid-glass, .liquid-glass-card {
+    background: #ffffff !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
 }
 
 /* Custom scrollbars */

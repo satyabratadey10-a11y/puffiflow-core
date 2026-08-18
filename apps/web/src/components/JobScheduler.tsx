@@ -161,7 +161,7 @@ export default function JobScheduler({ userId, onJobScheduled }: JobSchedulerPro
               <button
                 type="button"
                 onClick={() => setTargetResolution('1080p')}
-                className={`flex-1 py-2.5 rounded-xl text-xs font-bold border transition-colors ${
+                className={`flex-1 py-2.5 rounded-xl text-xs font-bold border btn-interactive ${
                   targetResolution === '1080p'
                     ? 'bg-[#CBF1F5] text-[#1e484c] border-[#71C9CE]'
                     : 'bg-white text-slate-600 border-[#A6E3E9] hover:text-slate-900'
@@ -172,7 +172,7 @@ export default function JobScheduler({ userId, onJobScheduled }: JobSchedulerPro
               <button
                 type="button"
                 onClick={() => setTargetResolution('4K')}
-                className={`flex-1 py-2.5 rounded-xl text-xs font-bold border transition-colors ${
+                className={`flex-1 py-2.5 rounded-xl text-xs font-bold border btn-interactive ${
                   targetResolution === '4K'
                     ? 'bg-[#CBF1F5] text-[#1e484c] border-[#71C9CE]'
                     : 'bg-white text-slate-600 border-[#A6E3E9] hover:text-slate-900'
@@ -224,7 +224,7 @@ export default function JobScheduler({ userId, onJobScheduled }: JobSchedulerPro
         <button
           type="submit"
           disabled={loading || !rawVideoUrl}
-          className="w-full py-4 px-6 rounded-2xl font-bold text-base text-white bg-[#71C9CE] hover:bg-[#5ab5bb] shadow-lg shadow-[#71C9CE]/25 hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-center space-x-3 disabled:opacity-50"
+          className="w-full py-4 px-6 rounded-2xl font-bold text-base text-white bg-[#71C9CE] hover:bg-[#5ab5bb] shadow-lg shadow-[#71C9CE]/25 btn-interactive flex items-center justify-center space-x-3 disabled:opacity-50"
         >
           {loading ? (
             <>

@@ -81,7 +81,7 @@ export default function DirectR2Upload({
             type="button"
             onClick={handleStartUpload}
             disabled={uploading}
-            className="w-full py-2.5 px-4 rounded-xl font-bold text-xs text-white bg-[#71C9CE] hover:bg-[#5ab5bb] shadow-md shadow-[#71C9CE]/25 transition-all flex items-center justify-center space-x-2 disabled:opacity-50"
+            className="w-full py-2.5 px-4 rounded-xl font-bold text-xs text-white bg-[#71C9CE] hover:bg-[#5ab5bb] shadow-md shadow-[#71C9CE]/25 btn-interactive flex items-center justify-center space-x-2 disabled:opacity-50"
           >
             {uploading ? (
               <>

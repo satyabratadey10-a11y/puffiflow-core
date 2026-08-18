@@ -162,7 +162,7 @@ function MultiCloudStorageSetupForm() {
         <div className="flex items-center justify-between">
           <Link
             href={`/dashboard?userId=${userId}`}
-            className="inline-flex items-center space-x-2 text-sm font-bold text-slate-700 hover:text-[#5ab5bb] transition-colors"
+            className="inline-flex items-center space-x-2 text-sm font-bold text-slate-700 hover:text-[#5ab5bb] btn-interactive"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>Back to Dashboard</span>
@@ -172,7 +172,7 @@ function MultiCloudStorageSetupForm() {
             href="https://supabase.com/dashboard"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center space-x-2 px-4 py-2 rounded-2xl bg-[#CBF1F5] text-[#1e484c] hover:bg-[#A6E3E9] border border-[#A6E3E9] text-xs font-bold transition-all shadow-sm"
+            className="inline-flex items-center space-x-2 px-4 py-2 rounded-2xl bg-[#CBF1F5] text-[#1e484c] hover:bg-[#A6E3E9] border border-[#A6E3E9] text-xs font-bold btn-interactive shadow-sm"
           >
             <span>Supabase Portal</span>
             <ExternalLink className="w-3.5 h-3.5" />
@@ -186,7 +186,7 @@ function MultiCloudStorageSetupForm() {
               <Globe className="w-8 h-8 text-[#71C9CE]" />
             </div>
             <div>
-              <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900">Universal BYOS Multi-Cloud Architecture</h1>
+              <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight md:tracking-[-0.02em]">Universal BYOS Multi-Cloud Architecture</h1>
               <p className="text-slate-600 text-sm mt-1">
                 Select your preferred object storage provider: <strong>Supabase (Default/Custom)</strong>, <strong>Cloudflare R2</strong>, <strong>AWS S3</strong>, <strong>Backblaze B2</strong>, or <strong>Wasabi</strong>.
               </p>
@@ -203,7 +203,7 @@ function MultiCloudStorageSetupForm() {
               </div>
               <Link
                 href={`/dashboard?userId=${userId}`}
-                className="px-4 py-2 rounded-xl bg-[#71C9CE] hover:bg-[#5ab5bb] text-white text-xs font-bold transition-colors shadow-sm"
+                className="px-4 py-2 rounded-xl bg-[#71C9CE] hover:bg-[#5ab5bb] text-white text-xs font-bold btn-interactive shadow-sm"
               >
                 Go to Dashboard
               </Link>
@@ -227,7 +227,7 @@ function MultiCloudStorageSetupForm() {
                     setErrorMsg(null);
                     setSuccessMsg(null);
                   }}
-                  className={`p-5 rounded-2xl text-left transition-all border flex flex-col justify-between space-y-3 ${
+                  className={`p-5 rounded-2xl text-left btn-interactive border flex flex-col justify-between space-y-3 ${
                     isSelected
                       ? 'bg-white border-[#71C9CE] shadow-xl shadow-[#71C9CE]/15 ring-2 ring-[#71C9CE]/50'
                       : 'bg-white/80 border-[#A6E3E9]/60 hover:bg-[#CBF1F5]/30 hover:border-[#A6E3E9]'
@@ -506,7 +506,7 @@ function MultiCloudStorageSetupForm() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full sm:w-auto px-8 py-4 rounded-2xl font-bold text-sm text-white bg-[#71C9CE] hover:bg-[#5ab5bb] shadow-lg shadow-[#71C9CE]/25 hover:-translate-y-0.5 transition-all flex items-center justify-center space-x-2 disabled:opacity-50"
+              className="w-full sm:w-auto px-8 py-4 rounded-2xl font-bold text-sm text-white bg-[#71C9CE] hover:bg-[#5ab5bb] shadow-lg shadow-[#71C9CE]/25 btn-interactive flex items-center justify-center space-x-2 disabled:opacity-50"
             >
               {loading ? (
                 <>

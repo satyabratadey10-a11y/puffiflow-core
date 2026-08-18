@@ -140,7 +140,7 @@ function ResetPasswordForm() {
             <ShieldCheck className="w-3.5 h-3.5 text-[#71C9CE]" />
             <span>Set New Password</span>
           </div>
-          <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900">Reset Password</h1>
+          <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight md:tracking-[-0.02em]">Reset Password</h1>
           <p className="text-slate-600 text-xs md:text-sm">
             Enter the 6-digit recovery code sent to <span className="text-slate-900 font-bold">{email || 'your email'}</span>
           </p>
@@ -200,7 +200,7 @@ function ResetPasswordForm() {
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="text-slate-400 hover:text-slate-600 absolute right-3.5 top-3.5"
+                className="text-slate-400 hover:text-slate-600 absolute right-3.5 top-3.5 btn-interactive"
               >
                 {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
@@ -268,7 +268,7 @@ function ResetPasswordForm() {
               <button
                 type="button"
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                className="text-slate-400 hover:text-slate-600 absolute right-3.5 top-3.5"
+                className="text-slate-400 hover:text-slate-600 absolute right-3.5 top-3.5 btn-interactive"
               >
                 {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
@@ -278,7 +278,7 @@ function ResetPasswordForm() {
           <button
             type="submit"
             disabled={loading || otp.join('').length !== 6 || !isPasswordValid}
-            className="w-full py-3.5 px-4 rounded-2xl font-bold text-sm text-white bg-[#71C9CE] hover:bg-[#5ab5bb] shadow-lg shadow-[#71C9CE]/25 transition-all flex items-center justify-center space-x-2 disabled:opacity-50 mt-4"
+            className="w-full py-3.5 px-4 rounded-2xl font-bold text-sm text-white bg-[#71C9CE] hover:bg-[#5ab5bb] shadow-lg shadow-[#71C9CE]/25 btn-interactive flex items-center justify-center space-x-2 disabled:opacity-50 mt-4"
           >
             {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <span>Update Password & Log In</span>}
           </button>

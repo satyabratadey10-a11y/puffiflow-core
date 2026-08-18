@@ -132,7 +132,7 @@ function VerifyEmailForm() {
             <KeyRound className="w-3.5 h-3.5 text-[#71C9CE]" />
             <span>Verify Email</span>
           </div>
-          <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900">Enter 6-Digit Code</h1>
+          <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight md:tracking-[-0.02em]">Enter 6-Digit Code</h1>
           <p className="text-slate-600 text-xs md:text-sm">
             We sent a verification code to <span className="text-slate-900 font-bold">{email || 'your email'}</span>
           </p>
@@ -160,7 +160,7 @@ function VerifyEmailForm() {
           <button
             type="submit"
             disabled={loading || otp.join('').length !== 6}
-            className="w-full py-3.5 px-4 rounded-2xl font-bold text-sm text-white bg-[#71C9CE] hover:bg-[#5ab5bb] shadow-lg shadow-[#71C9CE]/25 hover:-translate-y-0.5 transition-all flex items-center justify-center space-x-2 disabled:opacity-50"
+            className="w-full py-3.5 px-4 rounded-2xl font-bold text-sm text-white bg-[#71C9CE] hover:bg-[#5ab5bb] shadow-lg shadow-[#71C9CE]/25 btn-interactive flex items-center justify-center space-x-2 disabled:opacity-50"
           >
             {loading ? (
               <Loader2 className="w-4 h-4 animate-spin" />
@@ -178,7 +178,7 @@ function VerifyEmailForm() {
             type="button"
             onClick={handleResendCode}
             disabled={resendCooldown > 0 || resending}
-            className="inline-flex items-center space-x-2 text-xs font-bold text-slate-600 hover:text-[#5ab5bb] transition-colors disabled:opacity-50"
+            className="inline-flex items-center space-x-2 text-xs font-bold text-slate-600 hover:text-[#5ab5bb] btn-interactive disabled:opacity-50"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${resending ? 'animate-spin' : ''}`} />
             <span>
