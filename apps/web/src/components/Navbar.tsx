@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Sparkles, Video, Cloud, Zap, LogIn, LogOut, User } from 'lucide-react';
+import { Sparkles, Video, Cloud, Zap, LogIn, LogOut, User, Activity, Terminal } from 'lucide-react';
 import { createClient } from '../lib/supabase/client';
 
 export default function Navbar() {
@@ -35,7 +35,7 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="sticky top-0 z-50 backdrop-blur-md bg-white/80 border-b border-[#A6E3E9]/60 shadow-sm shadow-[#71C9CE]/10 px-6 py-3.5 transition-all">
+    <nav className="sticky top-0 z-50 backdrop-blur-md bg-white/85 border-b border-[#A6E3E9]/60 shadow-sm shadow-[#71C9CE]/10 px-6 py-3.5 transition-all">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         <Link href="/" className="flex items-center space-x-3 group btn-interactive">
           <div className="p-2 rounded-2xl bg-gradient-to-tr from-[#71C9CE] to-[#A6E3E9] shadow-md shadow-[#71C9CE]/25">
@@ -51,14 +51,22 @@ export default function Navbar() {
           </div>
         </Link>
 
-        <div className="hidden md:flex items-center space-x-8 text-sm font-bold text-slate-700">
+        <div className="hidden lg:flex items-center space-x-7 text-sm font-bold text-slate-700">
+          <Link href="/#pipeline" className="hover:text-[#5ab5bb] transition-colors flex items-center space-x-1.5">
+            <Activity className="w-4 h-4 text-[#71C9CE]" />
+            <span>Pipeline</span>
+          </Link>
           <Link href="/#features" className="hover:text-[#5ab5bb] transition-colors flex items-center space-x-1.5">
             <Zap className="w-4 h-4 text-[#71C9CE]" />
             <span>Architecture</span>
           </Link>
-          <Link href="/dashboard/setup" className="hover:text-[#5ab5bb] transition-colors flex items-center space-x-1.5">
+          <Link href="/#storage" className="hover:text-[#5ab5bb] transition-colors flex items-center space-x-1.5">
             <Cloud className="w-4 h-4 text-[#71C9CE]" />
-            <span>BYOS Storage</span>
+            <span>BYOS Matrix</span>
+          </Link>
+          <Link href="/#terminal" className="hover:text-[#5ab5bb] transition-colors flex items-center space-x-1.5">
+            <Terminal className="w-4 h-4 text-[#71C9CE]" />
+            <span>GPU Sandbox</span>
           </Link>
           <Link href="/dashboard" className="hover:text-[#5ab5bb] transition-colors flex items-center space-x-1.5">
             <Video className="w-4 h-4 text-[#71C9CE]" />

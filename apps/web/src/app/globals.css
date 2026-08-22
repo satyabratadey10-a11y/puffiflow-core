@@ -6,8 +6,15 @@
   :root {
     --background: 255 255 255;
     --foreground: 30 72 76;
+    --ease-out-snappy: cubic-bezier(0.23, 1, 0.32, 1);
+    --ease-drawer-ios: cubic-bezier(0.32, 0.72, 0, 1);
+    --ease-in-out-smooth: cubic-bezier(0.77, 0, 0.175, 1);
   }
   
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
     color: rgb(var(--foreground));
     background-color: rgb(var(--background));
@@ -17,55 +24,142 @@
     overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    selection-background-color: #71C9CE;
+    selection-color: #ffffff;
   }
 }
 
-/* Ambient liquid background blob animations */
+::selection {
+  background: #71C9CE;
+  color: #ffffff;
+}
+
+/* Ambient Fluid Background Blob Animations */
 @keyframes blob {
   0% {
-    transform: translate(0px, 0px) scale(1);
+    transform: translate(0px, 0px) scale(1) rotate(0deg);
   }
   33% {
-    transform: translate(30px, -50px) scale(1.08);
+    transform: translate(35px, -55px) scale(1.12) rotate(60deg);
   }
   66% {
-    transform: translate(-20px, 20px) scale(0.92);
+    transform: translate(-25px, 25px) scale(0.9) rotate(120deg);
   }
   100% {
-    transform: translate(0px, 0px) scale(1);
+    transform: translate(0px, 0px) scale(1) rotate(0deg);
   }
 }
 
 @keyframes pulse-slow {
   0%, 100% {
-    opacity: 0.4;
+    opacity: 0.45;
     transform: scale(1);
   }
   50% {
-    opacity: 0.7;
-    transform: scale(1.04);
+    opacity: 0.85;
+    transform: scale(1.06);
+  }
+}
+
+@keyframes float-slow {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-10px) rotate(1deg);
+  }
+}
+
+@keyframes float-reverse {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(12px) rotate(-1.5deg);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes scanline {
+  0% {
+    transform: translateY(-100%);
+  }
+  100% {
+    transform: translateY(1000%);
+  }
+}
+
+@keyframes stream-flow {
+  0% {
+    stroke-dashoffset: 40;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes border-glow-rotate {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
   }
 }
 
 .animate-blob {
-  animation: blob 9s infinite cubic-bezier(0.45, 0.05, 0.55, 0.95);
+  animation: blob 11s infinite cubic-bezier(0.45, 0.05, 0.55, 0.95);
 }
 
 .animate-blob-delay-2000 {
-  animation: blob 9s infinite cubic-bezier(0.45, 0.05, 0.55, 0.95) 2s;
+  animation: blob 13s infinite cubic-bezier(0.45, 0.05, 0.55, 0.95) 2s;
 }
 
 .animate-blob-delay-4000 {
-  animation: blob 9s infinite cubic-bezier(0.45, 0.05, 0.55, 0.95) 4s;
+  animation: blob 15s infinite cubic-bezier(0.45, 0.05, 0.55, 0.95) 4s;
 }
 
 .animate-pulse-slow {
-  animation: pulse-slow 6s infinite ease-in-out;
+  animation: pulse-slow 5s infinite ease-in-out;
 }
 
-/* Tactile Micro-Interactions & Button Physics */
+.animate-float {
+  animation: float-slow 4s infinite ease-in-out;
+}
+
+.animate-float-reverse {
+  animation: float-reverse 5s infinite ease-in-out;
+}
+
+.animate-shimmer {
+  background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.6) 50%, rgba(255,255,255,0) 100%);
+  background-size: 200% 100%;
+  animation: shimmer 2.5s infinite;
+}
+
+.animate-scanline {
+  animation: scanline 4s linear infinite;
+}
+
+.animate-stream {
+  stroke-dasharray: 6 6;
+  animation: stream-flow 1.5s linear infinite;
+}
+
+/* Emil Kowalski & Apple WWDC Tactile Micro-Interactions & Button Physics */
 .btn-interactive {
-  transition: transform 140ms cubic-bezier(0.23, 1, 0.32, 1), background-color 140ms ease-out, box-shadow 140ms ease-out;
+  transition: transform 140ms cubic-bezier(0.23, 1, 0.32, 1), background-color 140ms ease-out, box-shadow 140ms ease-out, border-color 140ms ease-out;
   will-change: transform;
 }
 
@@ -75,19 +169,63 @@
 
 /* Aqua / Cyan Liquid Glassmorphism Utilities with Translucent Materials */
 .liquid-glass {
-  background: rgba(227, 253, 253, 0.55);
-  backdrop-filter: blur(16px) saturate(180%);
-  -webkit-backdrop-filter: blur(16px) saturate(180%);
-  border: 1px solid rgba(166, 227, 233, 0.65);
-  box-shadow: 0 10px 30px -10px rgba(113, 201, 206, 0.15), inset 0 1px 1px 0 rgba(255, 255, 255, 0.8);
+  background: rgba(227, 253, 253, 0.65);
+  backdrop-filter: blur(18px) saturate(190%);
+  -webkit-backdrop-filter: blur(18px) saturate(190%);
+  border: 1px solid rgba(166, 227, 233, 0.7);
+  box-shadow: 0 10px 30px -10px rgba(113, 201, 206, 0.2), inset 0 1px 1px 0 rgba(255, 255, 255, 0.9);
 }
 
 .liquid-glass-card {
-  background: rgba(255, 255, 255, 0.88);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(24px) saturate(190%);
+  -webkit-backdrop-filter: blur(24px) saturate(190%);
   border: 1px solid rgba(166, 227, 233, 0.65);
-  box-shadow: 0 20px 40px -15px rgba(113, 201, 206, 0.14), inset 0 1px 1px 0 rgba(255, 255, 255, 0.9);
+  box-shadow: 0 20px 40px -15px rgba(113, 201, 206, 0.18), inset 0 1px 1px 0 rgba(255, 255, 255, 0.95);
+  transition: transform 220ms cubic-bezier(0.23, 1, 0.32, 1), box-shadow 220ms ease-out, border-color 220ms ease-out;
+}
+
+.liquid-glass-card:hover {
+  border-color: #71C9CE;
+  box-shadow: 0 25px 50px -12px rgba(113, 201, 206, 0.25), inset 0 1px 1px 0 rgba(255, 255, 255, 1);
+}
+
+.liquid-glass-interactive {
+  position: relative;
+  overflow: hidden;
+}
+
+.liquid-glass-interactive::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.4), transparent);
+  transform: skewX(-25deg);
+  transition: 0.75s;
+}
+
+.liquid-glass-interactive:hover::before {
+  left: 200%;
+}
+
+/* Glowing Dynamic Gradient Border */
+.glow-border {
+  position: relative;
+}
+
+.glow-border::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  background: linear-gradient(90deg, #71C9CE, #A6E3E9, #CBF1F5, #71C9CE);
+  background-size: 300% 300%;
+  border-radius: inherit;
+  z-index: -1;
+  opacity: 0.6;
+  animation: border-glow-rotate 6s linear infinite;
 }
 
 /* Accessibility: Reduced Motion */
@@ -98,7 +236,7 @@
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
-  .animate-blob, .animate-blob-delay-2000, .animate-blob-delay-4000, .animate-pulse-slow {
+  .animate-blob, .animate-blob-delay-2000, .animate-blob-delay-4000, .animate-pulse-slow, .animate-float, .animate-float-reverse, .animate-shimmer, .animate-scanline, .animate-stream {
     animation: none !important;
   }
   .btn-interactive:active {
